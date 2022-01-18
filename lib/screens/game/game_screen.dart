@@ -1,4 +1,5 @@
 import 'package:blitzgedanke/screens/game/game_manager.dart';
+import 'package:blitzgedanke/screens/game/wheel_widget.dart';
 import 'package:blitzgedanke/utils/R.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -88,12 +89,12 @@ class _GameScreenState extends State<GameScreen> {
     if (state is BeforeGameState) {
       canBePressed = state.canStart;
     } else if (state is RunningGameState) {
-      label = state.letter ?? '';
+      label = state.letter;
       canBePressed = true;
     }
 
     return Center(
-      child: _buildCardButton(Text('Next Letter: $label'), () {
+      child: WheelWidget(onPressed: () {
         widget.manager.spin();
       }),
     );
@@ -119,19 +120,19 @@ Future<String?> _showNewPlayerDialog(BuildContext context) async {
               controller: _controller,
               autofocus: true,
               decoration: InputDecoration(
-                  labelText: R.strings.player_name, hintText: 'eg. John Smith'),
+                  labelText: R.strings.playerName, hintText: 'eg. John Smith'),
             ),
           )
         ],
       ),
       actions: <Widget>[
         TextButton(
-            child: Text(R.strings.button_cancel),
+            child: Text(R.strings.buttonCancel),
             onPressed: () {
               Navigator.pop(context);
             }),
         TextButton(
-            child: Text(R.strings.button_ok),
+            child: Text(R.strings.buttonOk),
             onPressed: () {
               Navigator.pop(context, _controller.text);
             })
