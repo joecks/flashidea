@@ -117,8 +117,8 @@ class _WheelWidgetState extends State<WheelWidget>
     double rotationalChange =
         (verticalRotation + horizontalRotation) * d.delta.distance;
 
-    bool movingClockwise = rotationalChange > 0;
-    bool movingCounterClockwise = rotationalChange < 0;
+    // bool movingClockwise = rotationalChange > 0;
+    // bool movingCounterClockwise = rotationalChange < 0;
 
     setState(() {
       _rotationChange = rotationalChange;

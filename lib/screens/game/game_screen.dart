@@ -54,7 +54,11 @@ class _GameScreenState extends State<GameScreen> {
 
   Widget _buildPlayerButton(String player) {
     return _buildCardButton(
-        Text(player), () => widget.manager.selectWinningPlayer(player));
+        Text(
+          player,
+          style: Theme.of(context).textTheme.titleLarge,
+        ),
+        () => widget.manager.selectWinningPlayer(player));
   }
 
   Widget _buildPlayerDeletableButton(String player) {
@@ -95,7 +99,12 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   _buildCard(RunningGameState state) {
-    return _buildCardButton(Text((state.card + "\n" + state.letter)), () {
+    return _buildCardButton(
+        Text(
+          (state.card + "\n" + state.letter),
+          textAlign: TextAlign.center,
+          style: Theme.of(context).textTheme.headlineMedium,
+        ), () {
       widget.manager.skipCard();
     });
   }

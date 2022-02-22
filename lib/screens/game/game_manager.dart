@@ -2,6 +2,7 @@ import 'dart:collection';
 import 'dart:math';
 
 import 'package:equatable/equatable.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 abstract class GameState extends Equatable {
@@ -65,22 +66,69 @@ class RunningGameState extends GameState {
   List<Object?> get props => [players, card, letter];
 }
 
+final _debugStartPlayers = kDebugMode ? ["Simon", "Olaf", "Silke"] : <String>[];
+
 class GameManager extends Cubit<GameState> {
   static const _preferredLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   static const _cards = [
     "Eine Frucht.",
     "Was macht glücklich?",
-    "Ein Teil vom Auto."
+    "Ein Teil vom Auto.",
+    "Was fehlt den meisten?",
+    "Etwas aus der Schule.",
+    "Ein Buch oder ein Werk.",
+    "Märchen oder Sage.",
+    "Wie findest du das Leben?",
+    "Eine Filmgröße",
+    "Was machst du am Wochenende?",
+    "Was bist du?",
+    "Ein Kosenamen.",
+    "Ein Gedich oder ein Liederanfang",
+    "Ein Vogel",
+    "Ein Sportgerät.",
+    "Eine Folge der Erkältung.",
+    "Ein Baum.",
+    "Ein Wort mit 'ei' am Ende.",
+    "Wie soll man sich benehmen?",
+    "Ein Heilmittel",
+    "Eine Oper oder Operette.",
+    "Eine Erfindung.",
+    "Was ärgert Dich?",
+    "Was bring der Sommer?",
+    "Ein Gegnstand auf einem Schiff.",
+    "Was ist Liebe?",
+    "Ein Wort mit 'heit' am Ende",
+    "Ein bekannter Schiffsname.",
+    "Was erlebt man auf der Reise?",
+    "Ein bekanntes Sprichwort",
+    "Ein Wort aus der Landwirtschaft.",
+    "Etwas Seltenes.",
+    "Wie sieht er (sie) aus?",
+    "Etwas Unsichtbares.",
+    "Ein Teil der Eisenbahn.",
+    "Komponist oder Dirigent.",
+    "Was kannst Du?",
+    "Ein Beruf.",
+    "Ein Schmuck.",
+    "Was hat jeder mal?",
+    "Was ist schwarz?",
+    "Eine nette Beschäftigung.",
+    "Stern oder Sternbild.",
+    "Ein Staatsmann.",
+    "Was braucht man zum Bauen?",
+    "Was sammelst Du?",
+    "Eine Heldengestalt.",
+    "Eine Einrichtung des öffentlichen Lebens.",
   ];
 
   GameManager()
       : super(GameState.preparation(
-          players: ["Simon", "Olaf", "Silke"],
+          players: _debugStartPlayers,
           canStart: false,
         )) {
-    ["Simon", "Olaf", "Silke"].forEach((element) {
+    for (var element in _debugStartPlayers) {
       _players.add(element);
-    });
+    }
   }
 
   final _players = LinkedHashSet<String>();
