@@ -1,34 +1,38 @@
 import 'dart:math';
-import 'dart:ui';
 
 import 'package:blitzgedanke/utils/R.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+const positions = 26;
+
 class WheelWidget extends StatefulWidget {
   final VoidCallback onPressed;
+  final Function(int position) onFinished;
 
-  const WheelWidget({Key? key, required this.onPressed}) : super(key: key);
+  const WheelWidget({
+    Key? key,
+    required this.onPressed,
+    required this.onFinished,
+  }) : super(key: key);
 
   @override
   State<WheelWidget> createState() => _WheelWidgetState();
 }
 
 class _WheelWidgetState extends State<WheelWidget>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   var _pressed = false;
-  var _offset = 0.0;
-  late final _random = Random();
-  late final AnimationController _controller = AnimationController(
-      vsync: this, duration: const Duration(milliseconds: 2000));
+  AnimationController? _controller;
 
   @override
   void dispose() {
-    _controller.dispose();
+    _controller?.dispose();
     super.dispose();
   }
 
-  var _value = 2 * pi;
+  var _rotation = 2 * pi;
+  var _rotationChange = 0.0;
 
   @override
   Widget build(BuildContext context) {
@@ -44,12 +48,11 @@ class _WheelWidgetState extends State<WheelWidget>
       R.assets.letters,
     );
 
-    var animation = Tween(begin: _offset, end: _offset + Random().nextDouble())
-        .animate(_controller);
-
     return GestureDetector(
       onPanUpdate: _panHandler,
       onPanEnd: (_) {
+        _rotationChange = _rotationChange == 0 ? 1 : _rotationChange;
+        _startAnimation();
         widget.onPressed();
         setState(() {
           _pressed = false;
@@ -61,46 +64,22 @@ class _WheelWidgetState extends State<WheelWidget>
         });
       },
       onPanDown: (_) {
+        _controller?.stop();
+        _rotationChange = 0;
         setState(() {
           _pressed = true;
         });
       },
-      // onTapDown: (_) => setState(() {
-      //   _pressed = true;
-      //   _offset = animation.value;
-      //   _controller.reset();
-      //   animation =
-      //       Tween(begin: _offset, end: _offset + (_random.nextDouble() + 0.5))
-      //           .animate(CurvedAnimation(
-      //               parent: _controller, curve: Curves.easeInOutCubic));
-      //   _controller.forward();
-      // }),
-      // onTapUp: (_) {
-      //   widget.onPressed();
-      //   setState(() {
-      //     _pressed = false;
-      //   });
-      // },
-      // onTapCancel: () {
-      //   setState(() {
-      //     _pressed = false;
-      //   });
-      // },
       child: Stack(
         alignment: Alignment.center,
         children: [
           Transform.rotate(
-              angle: _value,
+              angle: _rotation,
               child: Container(
                 height: radius * 2,
                 width: radius * 2,
                 child: letters,
               )),
-          // RotationTransition(
-          //   turns: _controller,
-          //   child: letters,
-          // ),
-
           _pressed ? wheelPressed : wheel,
         ],
       ),
@@ -142,11 +121,51 @@ class _WheelWidgetState extends State<WheelWidget>
     bool movingCounterClockwise = rotationalChange < 0;
 
     setState(() {
-      _value = _value + (rotationalChange / radius);
+      _rotationChange = rotationalChange;
+      _rotation = _rotation + (rotationalChange / radius);
     });
 
     // _controller.value = _controller.value + rotationalChange;
 
     // Now do something interesting with these computations!
+  }
+
+  void _startAnimation() {
+    if (_rotationChange != 0) {
+      final controller = AnimationController(
+          vsync: this,
+          duration:
+              Duration(milliseconds: max(_rotationChange.abs().toInt(), 1000)));
+      _controller?.dispose();
+      _controller = _controller;
+      final offset = (_rotationChange * 2) / radius;
+      const parts = (2 * pi) / positions;
+      final finalRotation = _rotation + offset;
+      var animation = Tween(
+              begin: _rotation,
+              end: finalRotation - (finalRotation % parts) + parts / 8)
+          .animate(
+              CurvedAnimation(parent: controller, curve: Curves.easeOutQuad));
+
+      controller.addListener(() {
+        setState(() {
+          _rotation = animation.value;
+        });
+      });
+      controller.addStatusListener((status) {
+        if (status == AnimationStatus.dismissed ||
+            status == AnimationStatus.completed) {
+          final rotation = _rotation % (2 * pi);
+          const parts = (2 * pi) / positions;
+          var pos = positions - ((rotation / parts) + parts / 8).floor();
+          pos = ((pos + 1) % positions) - 1;
+          if (pos == -1) {
+            pos = positions - 1;
+          }
+          widget.onFinished(pos % positions);
+        }
+      });
+      controller.forward();
+    }
   }
 }

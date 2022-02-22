@@ -84,24 +84,18 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   Widget _buildWheel(GameState state) {
-    var label = '';
-    var canBePressed = false;
-    if (state is BeforeGameState) {
-      canBePressed = state.canStart;
-    } else if (state is RunningGameState) {
-      label = state.letter;
-      canBePressed = true;
-    }
-
     return Center(
-      child: WheelWidget(onPressed: () {
-        widget.manager.spin();
-      }),
+      child: WheelWidget(
+        onPressed: () {},
+        onFinished: (int position) {
+          widget.manager.spin(position);
+        },
+      ),
     );
   }
 
   _buildCard(RunningGameState state) {
-    return _buildCardButton(Text((state.card)), () {
+    return _buildCardButton(Text((state.card + "\n" + state.letter)), () {
       widget.manager.skipCard();
     });
   }

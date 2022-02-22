@@ -115,15 +115,14 @@ class GameManager extends Cubit<GameState> {
     computeState();
   }
 
-  void spin() {
+  void spin(int selectedLetter) {
     if (!_isRunning && _players.length > 1) {
       _isRunning = true;
     }
 
     if (_isRunning) {
       selectCard();
-      _currentLetter =
-          _preferredLetters[_random.nextInt(_preferredLetters.length)];
+      _currentLetter = _preferredLetters[selectedLetter];
     }
 
     computeState();
