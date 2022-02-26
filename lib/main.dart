@@ -14,7 +14,11 @@ class MainScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      themeMode: ThemeMode.dark,
+      theme: ThemeData(
+        primarySwatch: Colors.deepOrange,
+        brightness: Brightness.dark,
+        fontFamily: "NotoSans",
+      ),
       home: GameScreen(
         manager: manager,
       ),

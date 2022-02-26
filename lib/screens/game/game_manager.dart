@@ -1,6 +1,7 @@
 import 'dart:collection';
 import 'dart:math';
 
+import 'package:blitzgedanke/utils/R.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -18,14 +19,19 @@ abstract class GameState extends Equatable {
   factory GameState.results({required Map<String, int> results}) =>
       EndGameState(results: results);
 
-  factory GameState.running(
-          {required List<String> players,
-          required String card,
-          required String letter}) =>
+  factory GameState.running({
+    required List<String> players,
+    required String card,
+    required String letter,
+    required bool roundOver,
+    required String? selectedPlayer,
+  }) =>
       RunningGameState(
         players: players,
         card: card,
         letter: letter,
+        roundOver: roundOver,
+        selectedPlayer: selectedPlayer,
       );
 }
 
@@ -55,88 +61,46 @@ class RunningGameState extends GameState {
   final List<String> players;
   final String card;
   final String letter;
+  final bool roundOver;
+  final String? selectedPlayer;
 
   const RunningGameState({
     required this.players,
     required this.card,
     required this.letter,
+    required this.roundOver,
+    required this.selectedPlayer,
   }) : super._();
 
   @override
-  List<Object?> get props => [players, card, letter];
+  List<Object?> get props => [players, card, letter, roundOver, selectedPlayer];
 }
 
 final _debugStartPlayers = kDebugMode ? ["Simon", "Olaf", "Silke"] : <String>[];
 
 class GameManager extends Cubit<GameState> {
   static const _preferredLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-  static const _cards = [
-    "Eine Frucht.",
-    "Was macht glücklich?",
-    "Ein Teil vom Auto.",
-    "Was fehlt den meisten?",
-    "Etwas aus der Schule.",
-    "Ein Buch oder ein Werk.",
-    "Märchen oder Sage.",
-    "Wie findest du das Leben?",
-    "Eine Filmgröße",
-    "Was machst du am Wochenende?",
-    "Was bist du?",
-    "Ein Kosenamen.",
-    "Ein Gedich oder ein Liederanfang",
-    "Ein Vogel",
-    "Ein Sportgerät.",
-    "Eine Folge der Erkältung.",
-    "Ein Baum.",
-    "Ein Wort mit 'ei' am Ende.",
-    "Wie soll man sich benehmen?",
-    "Ein Heilmittel",
-    "Eine Oper oder Operette.",
-    "Eine Erfindung.",
-    "Was ärgert Dich?",
-    "Was bring der Sommer?",
-    "Ein Gegnstand auf einem Schiff.",
-    "Was ist Liebe?",
-    "Ein Wort mit 'heit' am Ende",
-    "Ein bekannter Schiffsname.",
-    "Was erlebt man auf der Reise?",
-    "Ein bekanntes Sprichwort",
-    "Ein Wort aus der Landwirtschaft.",
-    "Etwas Seltenes.",
-    "Wie sieht er (sie) aus?",
-    "Etwas Unsichtbares.",
-    "Ein Teil der Eisenbahn.",
-    "Komponist oder Dirigent.",
-    "Was kannst Du?",
-    "Ein Beruf.",
-    "Ein Schmuck.",
-    "Was hat jeder mal?",
-    "Was ist schwarz?",
-    "Eine nette Beschäftigung.",
-    "Stern oder Sternbild.",
-    "Ein Staatsmann.",
-    "Was braucht man zum Bauen?",
-    "Was sammelst Du?",
-    "Eine Heldengestalt.",
-    "Eine Einrichtung des öffentlichen Lebens.",
-  ];
 
   GameManager()
       : super(GameState.preparation(
           players: _debugStartPlayers,
-          canStart: false,
+          canStart: _debugStartPlayers.length > 1,
         )) {
     for (var element in _debugStartPlayers) {
       _players.add(element);
     }
   }
 
+  final _cards = R.strings.cards.toList();
+  // ignore: prefer_collection_literals
   final _players = LinkedHashSet<String>();
   bool _isRunning = false;
   bool _isFinished = false;
-  List<String> _leftCards = _cards.toList();
+  late List<String> _leftCards = _cards.toList();
   String? _currentCard;
+  bool _roundOver = false;
   String? _currentLetter;
+  String? _selectedPlayer;
   final _results = <String, List<String>>{};
   final _random = Random.secure();
 
@@ -148,7 +112,7 @@ class GameManager extends Cubit<GameState> {
       _players.add(trimmedPlayer);
       _results[trimmedPlayer] = [];
     }
-    computeState();
+    _computeState();
   }
 
   bool _containsPlayer(String trimmedPlayer) => _players
@@ -160,10 +124,34 @@ class GameManager extends Cubit<GameState> {
       _players.remove(player);
       _results.remove(player);
     }
-    computeState();
+    _computeState();
   }
 
-  void spin(int selectedLetter) {
+  void onSpinStarted() {
+    if (!_isRunning && _players.length > 1) {
+      _isRunning = true;
+    }
+
+    _finallySelectWinningPlayer();
+
+    _computeState();
+  }
+
+  void _finallySelectWinningPlayer() {
+    final player = _selectedPlayer;
+    final roundOver = _roundOver;
+    final currentCard = _currentCard;
+    if (_isRunning && roundOver && player != null && currentCard != null) {
+      final wonCards = _results[player] ?? [];
+      wonCards.add(currentCard);
+      _results[player] = wonCards;
+      _roundOver = false;
+      _selectedPlayer = null;
+      _currentCard = null;
+    }
+  }
+
+  void onSpinFinished(int selectedLetter) {
     if (!_isRunning && _players.length > 1) {
       _isRunning = true;
     }
@@ -173,7 +161,7 @@ class GameManager extends Cubit<GameState> {
       _currentLetter = _preferredLetters[selectedLetter];
     }
 
-    computeState();
+    _computeState();
   }
 
   void selectCard() {
@@ -185,46 +173,52 @@ class GameManager extends Cubit<GameState> {
   void selectWinningPlayer(String player) {
     final currentCard = _currentCard;
     if (currentCard != null && _isRunning) {
-      final wonCards = _results[player] ?? [];
-      wonCards.add(currentCard);
-      _results[player] = wonCards;
-      _currentCard = null;
+      _selectedPlayer = player;
+      _roundOver = true;
     }
 
     if (_leftCards.isEmpty) {
+      _finallySelectWinningPlayer();
       _isFinished = true;
     }
-    computeState();
+    _computeState();
   }
 
   void endGame() {
+    _finallySelectWinningPlayer();
+
     _isFinished = true;
-    computeState();
+    _computeState();
   }
 
   void restartGame() {
     _isFinished = false;
     _isRunning = false;
+    _roundOver = false;
+    _selectedPlayer = null;
     _results.clear();
-    _players.forEach((player) {
+    for (var player in _players) {
       _results[player] = [];
-    });
+    }
     _currentCard = null;
     _currentLetter = null;
     _leftCards = _cards.toList();
-    computeState();
+    _computeState();
   }
 
-  void skipCard() {
+  void cardPressed() {
+    if (_roundOver) {
+      return;
+    }
     _currentCard = null;
     selectCard();
     if (_currentCard == null) {
       _isFinished = true;
     }
-    computeState();
+    _computeState();
   }
 
-  void computeState() {
+  void _computeState() {
     if (_isFinished) {
       emit(GameState.results(
           results: _results.map((key, value) => MapEntry(key, value.length))));
@@ -233,6 +227,8 @@ class GameManager extends Cubit<GameState> {
         letter: _currentLetter ?? '',
         card: _currentCard ?? '',
         players: _players.toList(),
+        roundOver: _roundOver,
+        selectedPlayer: _selectedPlayer,
       ));
     } else {
       emit(GameState.preparation(

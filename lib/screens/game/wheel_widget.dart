@@ -7,12 +7,12 @@ import 'package:flutter/material.dart';
 const positions = 26;
 
 class WheelWidget extends StatefulWidget {
-  final VoidCallback onPressed;
+  final VoidCallback onRotationStart;
   final Function(int position) onFinished;
 
   const WheelWidget({
     Key? key,
-    required this.onPressed,
+    required this.onRotationStart,
     required this.onFinished,
   }) : super(key: key);
 
@@ -20,10 +20,13 @@ class WheelWidget extends StatefulWidget {
   State<WheelWidget> createState() => _WheelWidgetState();
 }
 
+const _circle = (2 * pi);
+
 class _WheelWidgetState extends State<WheelWidget>
     with TickerProviderStateMixin {
-  var _pressed = false;
   AnimationController? _controller;
+  var _rotation = 2 * pi;
+  var _rotationChange = 0.0;
 
   @override
   void dispose() {
@@ -31,17 +34,10 @@ class _WheelWidgetState extends State<WheelWidget>
     super.dispose();
   }
 
-  var _rotation = 2 * pi;
-  var _rotationChange = 0.0;
-
   @override
   Widget build(BuildContext context) {
     final wheel = Image.asset(
       R.assets.wheel,
-    );
-
-    final wheelPressed = Image.asset(
-      R.assets.wheelPressed,
     );
 
     final letters = Image.asset(
@@ -51,24 +47,18 @@ class _WheelWidgetState extends State<WheelWidget>
     return GestureDetector(
       onPanUpdate: _panHandler,
       onPanEnd: (_) {
+        /// to alwyays flip to a correct state
         _rotationChange = _rotationChange == 0 ? 1 : _rotationChange;
         _startAnimation();
-        widget.onPressed();
-        setState(() {
-          _pressed = false;
-        });
       },
       onPanCancel: () {
-        setState(() {
-          _pressed = false;
-        });
+        /// to alwyays flip to a correct state
+        _rotationChange = _rotationChange == 0 ? 1 : _rotationChange;
+        _startAnimation();
       },
       onPanDown: (_) {
         _controller?.stop();
         _rotationChange = 0;
-        setState(() {
-          _pressed = true;
-        });
       },
       child: Stack(
         alignment: Alignment.center,
@@ -80,7 +70,7 @@ class _WheelWidgetState extends State<WheelWidget>
                 width: radius * 2,
                 child: letters,
               )),
-          _pressed ? wheelPressed : wheel,
+          wheel,
         ],
       ),
     );
@@ -89,6 +79,9 @@ class _WheelWidgetState extends State<WheelWidget>
   int radius = 200;
 
   void _panHandler(DragUpdateDetails d) {
+    _controller?.stop();
+    _rotationChange = 0;
+
     /// Pan location on the wheel
     bool onTop = d.localPosition.dy <= radius;
     bool onLeftSide = d.localPosition.dx <= radius;
@@ -120,26 +113,27 @@ class _WheelWidgetState extends State<WheelWidget>
     // bool movingClockwise = rotationalChange > 0;
     // bool movingCounterClockwise = rotationalChange < 0;
 
-    setState(() {
-      _rotationChange = rotationalChange;
-      _rotation = _rotation + (rotationalChange / radius);
-    });
-
-    // _controller.value = _controller.value + rotationalChange;
-
-    // Now do something interesting with these computations!
+    if (rotationalChange != 0 && _controller?.isAnimating != true) {
+      setState(() {
+        widget.onRotationStart();
+        _rotationChange = rotationalChange;
+        _rotation = _rotation + (rotationalChange / radius);
+      });
+    }
   }
 
   void _startAnimation() {
     if (_rotationChange != 0) {
       final controller = AnimationController(
           vsync: this,
-          duration:
-              Duration(milliseconds: max(_rotationChange.abs().toInt(), 1000)));
+          duration: Duration(
+              milliseconds: _rotationChange.abs().toInt().clamp(1000, 5000)));
+      // _controller?.stop();
       _controller?.dispose();
       _controller = _controller;
-      final offset = (_rotationChange * 2) / radius;
-      const parts = (2 * pi) / positions;
+      var offset = _rotationChange * 2 / radius;
+      offset = min(offset, (10 * pi) + (offset % _circle));
+      const parts = _circle / positions;
       final finalRotation = _rotation + offset;
       var animation = Tween(
               begin: _rotation,
@@ -155,8 +149,8 @@ class _WheelWidgetState extends State<WheelWidget>
       controller.addStatusListener((status) {
         if (status == AnimationStatus.dismissed ||
             status == AnimationStatus.completed) {
-          final rotation = _rotation % (2 * pi);
-          const parts = (2 * pi) / positions;
+          final rotation = _rotation % _circle;
+          const parts = _circle / positions;
           var pos = positions - ((rotation / parts) + parts / 8).floor();
           pos = ((pos + 1) % positions) - 1;
           if (pos == -1) {
