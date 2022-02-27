@@ -32,6 +32,7 @@ class _GameScreenState extends State<GameScreen> {
       return Column(
         children: [
           _buildWheel(state.canStart),
+          _buildSelectLanguage(state.cardLanguages, state.selectedLanguage),
           Expanded(
             flex: 4,
             child: SingleChildScrollView(
@@ -57,7 +58,7 @@ class _GameScreenState extends State<GameScreen> {
               child: Opacity(
                 opacity: 0.5,
                 child: Text(
-                  R.strings.buttonStopGame,
+                  R.strings.buttonStopGame.toUpperCase(),
                   style: R.styles.player(context),
                 ),
               )),
@@ -90,7 +91,7 @@ class _GameScreenState extends State<GameScreen> {
           Opacity(
             opacity: opacity,
             child: Padding(
-              padding: const EdgeInsets.only(bottom: 8.0),
+              padding: const EdgeInsets.only(bottom: 8.0, top: 8.0),
               child: Text(
                 R.strings.whoWasFirstInThisRound,
                 style: R.styles.explanation(context),
@@ -242,6 +243,24 @@ class _GameScreenState extends State<GameScreen> {
         });
   }
 
+  // TODO try spinning wheel fork
+  // flutter_spinning_wheel:
+  //     git:
+  //       url: https://github.com/davidanaya/flutter-spinning-wheel
+  //       ref: fc65ba807ada392d1e57dfddd5eb2f5cf6dd9744
+  // SpinningWheel(
+  //   Image.asset(R.assets.letters),
+  //   width: 300,
+  //   dividers: 26,
+  //   height: 300,
+  //   secondaryImage: Image.asset(R.assets.wheel),
+  //   secondaryImageWidth: 250,
+  //   secondaryImageHeight: 250,
+  //   onUpdate: (i) => widget.manager.onSpinStarted(),
+  //   onEnd: widget.manager.onSpinFinished,
+  //   canInteractWhileSpinning: true,
+  // )
+
   Widget _buildWheel(bool canStart) {
     return IgnorePointer(
       ignoring: !canStart,
@@ -321,8 +340,7 @@ class _GameScreenState extends State<GameScreen> {
           child: Card(
             color: background,
             elevation: 4,
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            shape: R.styles.shapeRoundBorder,
             child: InkWell(
               onTap: onTap,
               child: Padding(
@@ -335,34 +353,87 @@ class _GameScreenState extends State<GameScreen> {
       ),
     );
   }
+
+  Widget _buildSelectLanguage(
+      List<Language> cardLanguages, Language selectedLanguage) {
+    var dropdownButton = DropdownButton<Language>(
+      value: selectedLanguage,
+      icon: const Icon(CupertinoIcons.arrow_down),
+      elevation: 16,
+      style: R.styles.button(context),
+      underline: Container(
+        height: 2,
+        color: R.colors.underlineLanguageSelection,
+      ),
+      onChanged: (Language? newValue) {
+        widget.manager.selectedLanguage(newValue!);
+      },
+      items: cardLanguages
+          .map<DropdownMenuItem<Language>>((Language value) =>
+              DropdownMenuItem<Language>(
+                value: value,
+                child: Text(R.strings.translatedLanguage(value).toUpperCase()),
+              ))
+          .toList(),
+    );
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            R.strings.cardLanguage.toUpperCase(),
+            style: R.styles.button(context),
+          ),
+          SizedBox.fromSize(
+            size: const Size(10, 0),
+          ),
+          dropdownButton,
+        ],
+      ),
+    );
+  }
 }
 
 Future<String?> _showNewPlayerDialog(BuildContext context) async {
   final _controller = TextEditingController();
+
   return showDialog<String>(
     context: context,
     builder: (BuildContext context) => AlertDialog(
       contentPadding: const EdgeInsets.all(16.0),
+      shape: R.styles.shapeRoundBorder,
+      backgroundColor: R.colors.playerCardBackground,
       content: Row(
         children: <Widget>[
           Expanded(
             child: TextField(
+              textCapitalization: TextCapitalization.characters,
+              style: R.styles.button(context),
               controller: _controller,
               autofocus: true,
               decoration: InputDecoration(
-                  labelText: R.strings.playerName, hintText: 'eg. John Smith'),
+                labelText: R.strings.playerName,
+                hintText: R.strings.playerNameHintText,
+              ),
             ),
           )
         ],
       ),
       actions: <Widget>[
         TextButton(
-            child: Text(R.strings.buttonCancel),
+            child: Text(
+              R.strings.buttonCancel.toUpperCase(),
+              style: R.styles.button(context),
+            ),
             onPressed: () {
               Navigator.pop(context);
             }),
         TextButton(
-            child: Text(R.strings.buttonOk),
+            child: Text(
+              R.strings.buttonOk.toUpperCase(),
+              style: R.styles.button(context),
+            ),
             onPressed: () {
               Navigator.pop(context, _controller.text);
             })

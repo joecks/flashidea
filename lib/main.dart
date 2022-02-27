@@ -1,9 +1,19 @@
 import 'package:blitzgedanke/screens/game/game_manager.dart';
 import 'package:blitzgedanke/screens/game/game_screen.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await _disableStatusBar();
   runApp(MainScreen());
+}
+
+Future<void> _disableStatusBar() async {
+  await SystemChrome.setEnabledSystemUIMode(
+    SystemUiMode.immersiveSticky,
+  );
 }
 
 class MainScreen extends StatelessWidget {
@@ -13,9 +23,12 @@ class MainScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance!.addObserver(LifecycleEventHandler(
+        resumeCallBack: () async => await _disableStatusBar()));
+
     return MaterialApp(
       theme: ThemeData(
-        primarySwatch: Colors.deepOrange,
+        primarySwatch: Colors.yellow,
         brightness: Brightness.dark,
         fontFamily: "NotoSans",
       ),
@@ -23,5 +36,24 @@ class MainScreen extends StatelessWidget {
         manager: manager,
       ),
     );
+  }
+}
+
+class LifecycleEventHandler extends WidgetsBindingObserver {
+  final AsyncCallback resumeCallBack;
+
+  LifecycleEventHandler({
+    required this.resumeCallBack,
+  });
+
+  @override
+  Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
+    switch (state) {
+      case AppLifecycleState.resumed:
+        await resumeCallBack();
+        break;
+      default:
+        break;
+    }
   }
 }

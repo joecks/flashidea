@@ -32,44 +32,19 @@ dependencies:
   flutter_bloc: 8.0.0
   equatable: 2.0.3
   cupertino_icons: ^1.0.2
+  i18n: 4.0.0-alpha.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
-  # The "flutter_lints" package below contains a set of recommended lints to
-  # encourage good coding practices. The lint set provided by the package is
-  # activated in the `analysis_options.yaml` file located at the root of your
-  # package. See that file for information about deactivating specific lint
-  # rules and activating additional ones.
+  build_runner: 2.1.7
   flutter_lints: ^1.0.0
 
-# For information on the generic Dart part of this file, see the
-# following page: https://dart.dev/tools/pub/pubspec
-
-# The following section is specific to Flutter.
 flutter:
 
-  # The following line ensures that the Material Icons font is
-  # included with your application, so that you can use the icons in
-  # the material Icons class.
   uses-material-design: true
-
-  # To add assets to your application, add an assets section, like this:
   assets:
    - assets/images/
-
-  # An image asset can refer to one or more resolution-specific "variants", see
-  # https://flutter.dev/assets-and-images/#resolution-aware.
-
-  # For details regarding adding assets from package dependencies, see
-  # https://flutter.dev/assets-and-images/#from-packages
-
-  # To add custom fonts to your application, add a fonts section here,
-  # in this "flutter" section. Each entry in this list should have a
-  # "family" key with the font family name, and a "fonts" key with a
-  # list giving the asset and other descriptors for the font. For
-  # example:
   fonts:
    - family: NotoSans
      fonts:
@@ -85,17 +60,3 @@ flutter:
    - family: TT2020StyleE
      fonts:
        - asset: assets/fonts/TT2020StyleE-Regular.ttf
-
-#   - family: NotoSerifDisplay
-#     fonts:
-#       - asset: assets/fonts/NotoSerifDisplay-Regular.ttf
-#       - asset: assets/fonts/NotoSerifDisplay-Italic.ttf
-#         style: italic
-#       - asset: assets/fonts/NotoSerifDisplay-Bold.ttf
-#         weight: 700
-#       - asset: assets/fonts/NotoSerifDisplay-BoldItalic.ttf
-#         style: italic
-#         weight: 700
-  #
-  # For details regarding fonts from package dependencies,
-  # see https://flutter.dev/custom-fonts/#from-packages

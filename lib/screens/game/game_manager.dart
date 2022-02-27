@@ -9,12 +9,18 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 abstract class GameState extends Equatable {
   const GameState._();
 
-  factory GameState.initial() =>
-      const BeforeGameState(players: [], canStart: false);
-
-  factory GameState.preparation(
-          {required List<String> players, required bool canStart}) =>
-      BeforeGameState(players: players, canStart: canStart);
+  factory GameState.preparation({
+    required List<String> players,
+    required bool canStart,
+    required List<Language> cardLanguages,
+    required Language selectedLanguage,
+  }) =>
+      BeforeGameState(
+        players: players,
+        canStart: canStart,
+        cardLanguages: cardLanguages,
+        selectedLanguage: selectedLanguage,
+      );
 
   factory GameState.results({required Map<String, int> results}) =>
       EndGameState(results: results);
@@ -38,14 +44,19 @@ abstract class GameState extends Equatable {
 class BeforeGameState extends GameState {
   final List<String> players;
   final bool canStart;
+  final List<Language> cardLanguages;
+  final Language selectedLanguage;
 
   const BeforeGameState({
     required this.players,
     required this.canStart,
+    required this.cardLanguages,
+    required this.selectedLanguage,
   }) : super._();
 
   @override
-  List<Object?> get props => [players];
+  List<Object?> get props =>
+      [players, selectedLanguage, cardLanguages, canStart];
 }
 
 class EndGameState extends GameState {
@@ -77,6 +88,8 @@ class RunningGameState extends GameState {
 }
 
 final _debugStartPlayers = kDebugMode ? ["Simon", "Olaf", "Silke"] : <String>[];
+final _defaultCardLanguages = CardSets.defaultSet.languages;
+final _defaultSelectedLanguage = CardSets.defaultSet.languages.first;
 
 class GameManager extends Cubit<GameState> {
   static const _preferredLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -85,19 +98,22 @@ class GameManager extends Cubit<GameState> {
       : super(GameState.preparation(
           players: _debugStartPlayers,
           canStart: _debugStartPlayers.length > 1,
+          cardLanguages: _defaultCardLanguages.toList(growable: false),
+          selectedLanguage: _defaultSelectedLanguage,
         )) {
     for (var element in _debugStartPlayers) {
       _players.add(element);
     }
   }
 
-  final _cards = R.strings.cards.toList();
+  Language _selectedCardLanguage = _defaultSelectedLanguage;
+  late Map<String, String> cards;
   // ignore: prefer_collection_literals
   final _players = LinkedHashSet<String>();
   bool _isRunning = false;
   bool _isFinished = false;
-  late List<String> _leftCards = _cards.toList();
-  String? _currentCard;
+  List<MapEntry<String, String>> _leftCards = _selectCardSet(Language.fr);
+  MapEntry<String, String>? _currentCard;
   bool _roundOver = false;
   String? _currentLetter;
   String? _selectedPlayer;
@@ -111,6 +127,16 @@ class GameManager extends Cubit<GameState> {
         !_containsPlayer(trimmedPlayer)) {
       _players.add(trimmedPlayer);
       _results[trimmedPlayer] = [];
+    }
+    _computeState();
+  }
+
+  void selectedLanguage(Language language) {
+    if (!CardSets.defaultSet.languages.contains(language)) {
+      return;
+    }
+    if (!_isRunning) {
+      _selectedCardLanguage = language;
     }
     _computeState();
   }
@@ -129,6 +155,7 @@ class GameManager extends Cubit<GameState> {
 
   void onSpinStarted() {
     if (!_isRunning && _players.length > 1) {
+      _leftCards = _selectCardSet(_selectedCardLanguage);
       _isRunning = true;
     }
 
@@ -137,13 +164,17 @@ class GameManager extends Cubit<GameState> {
     _computeState();
   }
 
+  static List<MapEntry<String, String>> _selectCardSet(Language language) {
+    return R.strings.cards(CardSets.defaultSet.name, language).entries.toList();
+  }
+
   void _finallySelectWinningPlayer() {
     final player = _selectedPlayer;
     final roundOver = _roundOver;
     final currentCard = _currentCard;
     if (_isRunning && roundOver && player != null && currentCard != null) {
       final wonCards = _results[player] ?? [];
-      wonCards.add(currentCard);
+      wonCards.add(currentCard.value);
       _results[player] = wonCards;
       _roundOver = false;
       _selectedPlayer = null;
@@ -202,7 +233,7 @@ class GameManager extends Cubit<GameState> {
     }
     _currentCard = null;
     _currentLetter = null;
-    _leftCards = _cards.toList();
+    _leftCards = _selectCardSet(_selectedCardLanguage);
     _computeState();
   }
 
@@ -225,7 +256,7 @@ class GameManager extends Cubit<GameState> {
     } else if (_isRunning) {
       emit(GameState.running(
         letter: _currentLetter ?? '',
-        card: _currentCard ?? '',
+        card: _currentCard?.value ?? '',
         players: _players.toList(),
         roundOver: _roundOver,
         selectedPlayer: _selectedPlayer,
@@ -234,6 +265,8 @@ class GameManager extends Cubit<GameState> {
       emit(GameState.preparation(
         canStart: _players.length > 1,
         players: _players.toList(),
+        cardLanguages: CardSets.defaultSet.languages.toList(),
+        selectedLanguage: _selectedCardLanguage,
       ));
     }
   }

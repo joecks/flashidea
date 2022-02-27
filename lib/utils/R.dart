@@ -1,3 +1,7 @@
+import 'package:blitzgedanke/utils/translations/cards.i18n.dart';
+import 'package:blitzgedanke/utils/translations/cards_de.i18n.dart';
+import 'package:blitzgedanke/utils/translations/cards_fr.i18n.dart';
+import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 
 class R {
@@ -6,74 +10,83 @@ class R {
   static final Strings _strings = Strings();
   static final Assets _assets = Assets();
   static final Styles _styles = Styles();
+
   static Strings get strings => _strings;
+
   static Assets get assets => _assets;
+
   static Styles get styles => _styles;
   static final colors = _Colors();
+}
+
+class CardSet extends Equatable {
+  final String name;
+  final Set<Language> languages;
+
+  const CardSet({
+    required this.name,
+    required this.languages,
+  });
+
+  @override
+  List<Object?> get props => [name, languages];
+}
+
+class CardSets {
+  static const defaultSet = CardSet(name: 'defaultSet', languages: {
+    Language.en,
+    Language.de,
+    Language.fr,
+  });
+}
+
+enum Language {
+  en,
+  de,
+  fr,
 }
 
 class Strings {
   final String playerName = 'Player Name';
   final String buttonCancel = 'Cancel';
   final String buttonOk = 'Ok';
-  final String buttonStopGame = 'Stop game';
+  final String buttonStopGame = 'End game';
   final String addPlayer = 'Add player (min. 2)';
   final String descriptionSkipCard = 'Skip';
   final String descriptionTurnTheWheel = 'Turn the wheel for next round.';
   final String startGame = "Start New Game";
-  final String whoWasFirstInThisRound = 'Who was first in this round?';
+  final String whoWasFirstInThisRound = 'Who was first?';
   final String finalScore = 'Score';
+  final String cardLanguage = 'Language:';
+  final String playerNameHintText = 'eg. BART';
 
-  final cards = [
-    "Eine Frucht.",
-    "Was macht glücklich?",
-    "Ein Teil vom Auto.",
-    "Was fehlt den meisten?",
-    "Etwas aus der Schule.",
-    "Ein Buch oder ein Werk.",
-    "Märchen oder Sage.",
-    "Wie findest du das Leben?",
-    "Eine Filmgröße",
-    "Was machst du am Wochenende?",
-    "Was bist du?",
-    "Ein Kosenamen.",
-    "Ein Gedich oder ein Liederanfang",
-    "Ein Vogel",
-    "Ein Sportgerät.",
-    "Eine Folge der Erkältung.",
-    "Ein Baum.",
-    "Ein Wort mit 'ei' am Ende.",
-    "Wie soll man sich benehmen?",
-    "Ein Heilmittel",
-    "Eine Oper oder Operette.",
-    "Eine Erfindung.",
-    "Was ärgert Dich?",
-    "Was bring der Sommer?",
-    "Ein Gegnstand auf einem Schiff.",
-    "Was ist Liebe?",
-    "Ein Wort mit 'heit' am Ende",
-    "Ein bekannter Schiffsname.",
-    "Was erlebt man auf der Reise?",
-    "Ein bekanntes Sprichwort",
-    "Ein Wort aus der Landwirtschaft.",
-    "Etwas Seltenes.",
-    "Wie sieht er (sie) aus?",
-    "Etwas Unsichtbares.",
-    "Ein Teil der Eisenbahn.",
-    "Komponist oder Dirigent.",
-    "Was kannst Du?",
-    "Ein Beruf.",
-    "Ein Schmuck.",
-    "Was hat jeder mal?",
-    "Was ist schwarz?",
-    "Eine nette Beschäftigung.",
-    "Stern oder Sternbild.",
-    "Ein Staatsmann.",
-    "Was braucht man zum Bauen?",
-    "Was sammelst Du?",
-    "Eine Heldengestalt.",
-    "Eine Einrichtung des öffentlichen Lebens.",
-  ];
+  Map<String, String> cards(String setName, Language language) {
+    late Map<String, String> cards;
+    switch (language) {
+      case Language.en:
+        cards = cardsMap;
+        break;
+      case Language.de:
+        cards = cardsDeMap;
+        break;
+      case Language.fr:
+        cards = cardsFrMap;
+        break;
+    }
+    return Map.fromEntries(
+        cards.entries.where((e) => e.key.startsWith(setName)));
+  }
+
+  String translatedLanguage(Language value) {
+    switch (value) {
+      case Language.en:
+        return 'English';
+      case Language.de:
+        return 'German';
+      case Language.fr:
+        return 'French';
+    }
+  }
 }
 
 class Assets {
@@ -114,7 +127,11 @@ class Styles {
   TextStyle explanation(BuildContext context) =>
       Theme.of(context).textTheme.bodyLarge!.copyWith(
             fontWeight: FontWeight.bold,
+            color: R.colors.textPlayer,
           );
+
+  final shapeRoundBorder =
+      RoundedRectangleBorder(borderRadius: BorderRadius.circular(8));
 }
 
 class _Colors {
@@ -125,10 +142,15 @@ class _Colors {
 
   /// Text Colors
   Color get textCard => _black;
+
   Color get textPlayer => _yellowFresh;
+
   Color get textPlayerShadow => _yellowFresh.withOpacity(0.5);
 
   /// Other Colors
   Color get cardBackground => _greenOld;
+
   Color get playerCardBackground => _blueFresh;
+
+  Color get underlineLanguageSelection => _blueFresh;
 }
