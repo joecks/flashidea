@@ -1,6 +1,7 @@
-import 'package:blitzgedanke/utils/translations/cards.i18n.dart';
-import 'package:blitzgedanke/utils/translations/cards_de.i18n.dart';
-import 'package:blitzgedanke/utils/translations/cards_fr.i18n.dart';
+import 'package:blitzgedanke/utils/cards/cards.i18n.dart';
+import 'package:blitzgedanke/utils/cards/cards_de.i18n.dart';
+import 'package:blitzgedanke/utils/cards/cards_fr.i18n.dart';
+import 'package:blitzgedanke/utils/translations/ui.i18n.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 
@@ -11,12 +12,29 @@ class R {
   static final Assets _assets = Assets();
   static final Styles _styles = Styles();
 
-  static Strings get strings => _strings;
+  static Ui get strings => _strings.translations;
 
   static Assets get assets => _assets;
 
   static Styles get styles => _styles;
   static final colors = _Colors();
+
+  static Map<String, String> cards(String setName, Language language) {
+    late Map<String, String> cards;
+    switch (language) {
+      case Language.en:
+        cards = cardsMap;
+        break;
+      case Language.de:
+        cards = cardsDeMap;
+        break;
+      case Language.fr:
+        cards = cardsFrMap;
+        break;
+    }
+    return Map.fromEntries(
+        cards.entries.where((e) => e.key.startsWith(setName)));
+  }
 }
 
 class CardSet extends Equatable {
@@ -47,44 +65,19 @@ enum Language {
 }
 
 class Strings {
-  final String playerName = 'Player Name';
-  final String buttonCancel = 'Cancel';
-  final String buttonOk = 'Ok';
-  final String buttonStopGame = 'End game';
-  final String addPlayer = 'Add player (min. 2)';
-  final String descriptionSkipCard = 'Skip';
-  final String descriptionTurnTheWheel = 'Turn the wheel for next round.';
-  final String startGame = "Start New Game";
-  final String whoWasFirstInThisRound = 'Who was first?';
-  final String finalScore = 'Score';
-  final String cardLanguage = 'Language:';
-  final String playerNameHintText = 'eg. BART';
+  final Ui _translation = const Ui();
+  Ui get translations => _translation;
+}
 
-  Map<String, String> cards(String setName, Language language) {
-    late Map<String, String> cards;
-    switch (language) {
-      case Language.en:
-        cards = cardsMap;
-        break;
-      case Language.de:
-        cards = cardsDeMap;
-        break;
-      case Language.fr:
-        cards = cardsFrMap;
-        break;
-    }
-    return Map.fromEntries(
-        cards.entries.where((e) => e.key.startsWith(setName)));
-  }
-
+extension UiExt on Ui {
   String translatedLanguage(Language value) {
     switch (value) {
       case Language.en:
-        return 'English';
+        return languageEnglish;
       case Language.de:
-        return 'German';
+        return languageGerman;
       case Language.fr:
-        return 'French';
+        return languageFrench;
     }
   }
 }

@@ -1,5 +1,4 @@
 // GENERATED FILE, do not edit!
-// ignore_for_file: unused_element, unused_field
 import 'package:i18n/i18n.dart' as i18n;
 
 String get _languageCode => 'en';
@@ -19,35 +18,17 @@ String _ordinal(int count,
         String? few,
         String? many,
         String? other}) =>
-    i18n.ordinal(
-      count,
-      _languageCode,
-      zero: zero,
-      one: one,
-      two: two,
-      few: few,
-      many: many,
-      other: other,
-    );
-String _cardinal(
-  int count, {
-  String? zero,
-  String? one,
-  String? two,
-  String? few,
-  String? many,
-  String? other,
-}) =>
-    i18n.cardinal(
-      count,
-      _languageCode,
-      zero: zero,
-      one: one,
-      two: two,
-      few: few,
-      many: many,
-      other: other,
-    );
+    i18n.ordinal(count, _languageCode,
+        zero: zero, one: one, two: two, few: few, many: many, other: other);
+String _cardinal(int count,
+        {String? zero,
+        String? one,
+        String? two,
+        String? few,
+        String? many,
+        String? other}) =>
+    i18n.cardinal(count, _languageCode,
+        zero: zero, one: one, two: two, few: few, many: many, other: other);
 
 class Cards {
   const Cards();
@@ -92,7 +73,7 @@ class DefaultSetCards {
   String get phrase31 => """How does he (or she) appear?""";
   String get phrase32 => """What does everyone have sometimes?""";
   String get phrase33 => """A hero.""";
-  String get phrase34 => """How must one bahave?""";
+  String get phrase34 => """How must one behave?""";
   String get phrase35 => """What is love?""";
   String get phrase36 => """Something invisible.""";
   String get phrase37 => """Something black?""";
@@ -143,7 +124,7 @@ Map<String, String> get cardsMap => {
       """defaultSet.phrase31""": """How does he (or she) appear?""",
       """defaultSet.phrase32""": """What does everyone have sometimes?""",
       """defaultSet.phrase33""": """A hero.""",
-      """defaultSet.phrase34""": """How must one bahave?""",
+      """defaultSet.phrase34""": """How must one behave?""",
       """defaultSet.phrase35""": """What is love?""",
       """defaultSet.phrase36""": """Something invisible.""",
       """defaultSet.phrase37""": """Something black?""",

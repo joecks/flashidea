@@ -159,27 +159,13 @@ class GameManager extends Cubit<GameState> {
       _isRunning = true;
     }
 
+    if (_isRunning) {
+      selectCard();
+    }
+
     _finallySelectWinningPlayer();
 
     _computeState();
-  }
-
-  static List<MapEntry<String, String>> _selectCardSet(Language language) {
-    return R.strings.cards(CardSets.defaultSet.name, language).entries.toList();
-  }
-
-  void _finallySelectWinningPlayer() {
-    final player = _selectedPlayer;
-    final roundOver = _roundOver;
-    final currentCard = _currentCard;
-    if (_isRunning && roundOver && player != null && currentCard != null) {
-      final wonCards = _results[player] ?? [];
-      wonCards.add(currentCard.value);
-      _results[player] = wonCards;
-      _roundOver = false;
-      _selectedPlayer = null;
-      _currentCard = null;
-    }
   }
 
   void onSpinFinished(int selectedLetter) {
@@ -268,6 +254,24 @@ class GameManager extends Cubit<GameState> {
         cardLanguages: CardSets.defaultSet.languages.toList(),
         selectedLanguage: _selectedCardLanguage,
       ));
+    }
+  }
+
+  static List<MapEntry<String, String>> _selectCardSet(Language language) {
+    return R.cards(CardSets.defaultSet.name, language).entries.toList();
+  }
+
+  void _finallySelectWinningPlayer() {
+    final player = _selectedPlayer;
+    final roundOver = _roundOver;
+    final currentCard = _currentCard;
+    if (_isRunning && roundOver && player != null && currentCard != null) {
+      final wonCards = _results[player] ?? [];
+      wonCards.add(currentCard.value);
+      _results[player] = wonCards;
+      _roundOver = false;
+      _selectedPlayer = null;
+      _currentCard = null;
     }
   }
 }

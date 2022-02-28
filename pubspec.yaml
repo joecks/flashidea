@@ -32,7 +32,7 @@ dependencies:
   flutter_bloc: 8.0.0
   equatable: 2.0.3
   cupertino_icons: ^1.0.2
-  i18n: 4.0.0-alpha.0
+  i18n: 3.4.0
 
 dev_dependencies:
   flutter_test:

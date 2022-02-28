@@ -1,5 +1,4 @@
 // GENERATED FILE, do not edit!
-// ignore_for_file: unused_element, unused_field
 import 'package:i18n/i18n.dart' as i18n;
 import 'cards.i18n.dart';
 
@@ -20,35 +19,17 @@ String _ordinal(int count,
         String? few,
         String? many,
         String? other}) =>
-    i18n.ordinal(
-      count,
-      _languageCode,
-      zero: zero,
-      one: one,
-      two: two,
-      few: few,
-      many: many,
-      other: other,
-    );
-String _cardinal(
-  int count, {
-  String? zero,
-  String? one,
-  String? two,
-  String? few,
-  String? many,
-  String? other,
-}) =>
-    i18n.cardinal(
-      count,
-      _languageCode,
-      zero: zero,
-      one: one,
-      two: two,
-      few: few,
-      many: many,
-      other: other,
-    );
+    i18n.ordinal(count, _languageCode,
+        zero: zero, one: one, two: two, few: few, many: many, other: other);
+String _cardinal(int count,
+        {String? zero,
+        String? one,
+        String? two,
+        String? few,
+        String? many,
+        String? other}) =>
+    i18n.cardinal(count, _languageCode,
+        zero: zero, one: one, two: two, few: few, many: many, other: other);
 
 class CardsDe extends Cards {
   const CardsDe();

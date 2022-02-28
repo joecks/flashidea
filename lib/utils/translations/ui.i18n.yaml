@@ -1,0 +1,15 @@
+playerName: Player Name
+buttonCancel: Cancel
+buttonOk: Ok
+buttonStopGame: End game
+addPlayer: Add player (min. 2)
+descriptionSkipCard: Skip
+descriptionTurnTheWheel : Turn the wheel for next round.
+startGame: Start New Game
+whoWasFirstInThisRound: Who was first?
+finalScore: Score
+cardLanguage: "Language:"
+playerNameHintText: eg. BART
+languageGerman: German
+languageEnglish: English
+languageFrench: French
