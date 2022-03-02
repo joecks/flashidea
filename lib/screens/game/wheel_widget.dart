@@ -60,18 +60,16 @@ class _WheelWidgetState extends State<WheelWidget>
         _controller?.stop();
         _rotationChange = 0;
       },
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          Transform.rotate(
-              angle: _rotation,
-              child: Container(
-                height: radius * 2,
-                width: radius * 2,
-                child: letters,
-              )),
-          wheel,
-        ],
+      child: SizedBox(
+        width: 2.0 * radius,
+        height: 2.0 * radius,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Transform.rotate(angle: _rotation, child: letters),
+            Padding(child: wheel, padding: const EdgeInsets.all(6)),
+          ],
+        ),
       ),
     );
   }

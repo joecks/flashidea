@@ -20,9 +20,12 @@ class _GameScreenState extends State<GameScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         body: SafeArea(
-      child: BlocBuilder<GameManager, GameState>(
-        builder: (context, state) => _createGame(context, state),
-        bloc: widget.manager,
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 8, top: 8),
+        child: BlocBuilder<GameManager, GameState>(
+          builder: (context, state) => _createGame(context, state),
+          bloc: widget.manager,
+        ),
       ),
     ));
   }
@@ -31,7 +34,7 @@ class _GameScreenState extends State<GameScreen> {
     if (state is BeforeGameState) {
       return Column(
         children: [
-          _buildWheel(state.canStart),
+          Expanded(flex: 10, child: _buildWheel(state.canStart)),
           _buildSelectLanguage(state.cardLanguages, state.selectedLanguage),
           Expanded(
             flex: 4,
@@ -43,27 +46,21 @@ class _GameScreenState extends State<GameScreen> {
               ),
             ),
           ),
-          addPlayerButton(context),
+          _addNewPlayer(context),
         ],
       );
     } else if (state is RunningGameState) {
-      final endGameButton = Expanded(
-        flex: 2,
-        child: Container(
-          alignment: Alignment.bottomCenter,
-          child: TextButton(
-              onPressed: () {
-                widget.manager.endGame();
-              },
-              child: Opacity(
-                opacity: 0.5,
-                child: Text(
-                  R.strings.buttonStopGame.toUpperCase(),
-                  style: R.styles.player(context),
-                ),
-              )),
-        ),
-      );
+      final endGameButton = TextButton(
+          onPressed: () {
+            widget.manager.endGame();
+          },
+          child: Opacity(
+            opacity: 0.5,
+            child: Text(
+              R.strings.buttonStopGame.toUpperCase(),
+              style: R.styles.player(context),
+            ),
+          ));
 
       final opacity = state.card.isEmpty ? 0.1 : 1.0;
       final users = Expanded(
@@ -86,7 +83,7 @@ class _GameScreenState extends State<GameScreen> {
       return Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _buildCard(state),
+          Expanded(flex: 6, child: _buildCard(state)),
           Expanded(flex: 10, child: _buildWheel(true)),
           Opacity(
             opacity: opacity,
@@ -142,16 +139,6 @@ class _GameScreenState extends State<GameScreen> {
     } else {
       throw "$state not supported";
     }
-  }
-
-  Widget addPlayerButton(BuildContext context) {
-    return Expanded(
-      flex: 1,
-      child: Container(
-        alignment: Alignment.bottomCenter,
-        child: _addNewPlayer(context),
-      ),
-    );
   }
 
   Widget _buildResult(int position, String player, int cardsWon) {
@@ -293,8 +280,8 @@ class _GameScreenState extends State<GameScreen> {
             : R.strings.descriptionSkipCard,
         style: R.styles.gameCardDescription(context),
       ),
-      minHeight: 150,
-      minWidth: 300,
+      minHeight: 100,
+      minWidth: 200,
       background: R.colors.cardBackground,
       disabled: state.roundOver || state.card.isEmpty,
     );
@@ -320,12 +307,13 @@ class _GameScreenState extends State<GameScreen> {
     var content = description == null
         ? child
         : Column(
-            mainAxisSize: MainAxisSize.min,
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.end,
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Expanded(
                 child: child,
-                flex: 0,
+                flex: 10,
               ),
               description
             ],
