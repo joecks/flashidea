@@ -1,4 +1,4 @@
-package com.example.blitzgedanke
+package de.halfreal.blitzidea
 
 import io.flutter.embedding.android.FlutterActivity
 

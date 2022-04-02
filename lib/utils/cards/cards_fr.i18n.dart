@@ -62,7 +62,7 @@ class DefaultSetCardsFr extends DefaultSetCards {
   String get phrase19 => """Ce qui vous fâche le plus?""";
   String get phrase20 => """Suite d'un refroidissement.""";
   String get phrase21 => """Un mot emprunté à l'agriculture.""";
-  String get phrase22 => """What does a builder need?""";
+  String get phrase22 => """Ce qu'il faut pour bâtir?""";
   String get phrase23 => """Une profession.""";
   String get phrase24 => """Un arbre.""";
   String get phrase25 => """Ce qu'apporte l'été?""";
@@ -70,7 +70,7 @@ class DefaultSetCardsFr extends DefaultSetCards {
   String get phrase27 => """Quelque chose de rare.""";
   String get phrase28 => """Un mot qui se termine par "on".""";
   String get phrase29 => """Un bijou.""";
-  String get phrase30 => """Semething found on a boat.""";
+  String get phrase30 => """Un objet d'un vaisseau.""";
   String get phrase31 => """Comment parait-il (elle)?""";
   String get phrase32 => """Ce que tout le monde à quelquefois?""";
   String get phrase33 => """Un héros.""";
@@ -113,7 +113,7 @@ Map<String, String> get cardsFrMap => {
       """defaultSet.phrase19""": """Ce qui vous fâche le plus?""",
       """defaultSet.phrase20""": """Suite d'un refroidissement.""",
       """defaultSet.phrase21""": """Un mot emprunté à l'agriculture.""",
-      """defaultSet.phrase22""": """What does a builder need?""",
+      """defaultSet.phrase22""": """Ce qu'il faut pour bâtir?""",
       """defaultSet.phrase23""": """Une profession.""",
       """defaultSet.phrase24""": """Un arbre.""",
       """defaultSet.phrase25""": """Ce qu'apporte l'été?""",
@@ -121,7 +121,7 @@ Map<String, String> get cardsFrMap => {
       """defaultSet.phrase27""": """Quelque chose de rare.""",
       """defaultSet.phrase28""": """Un mot qui se termine par "on".""",
       """defaultSet.phrase29""": """Un bijou.""",
-      """defaultSet.phrase30""": """Semething found on a boat.""",
+      """defaultSet.phrase30""": """Un objet d'un vaisseau.""",
       """defaultSet.phrase31""": """Comment parait-il (elle)?""",
       """defaultSet.phrase32""": """Ce que tout le monde à quelquefois?""",
       """defaultSet.phrase33""": """Un héros.""",

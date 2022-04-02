@@ -1,6 +1,6 @@
-import 'package:blitzgedanke/screens/game/game_manager.dart';
-import 'package:blitzgedanke/screens/game/wheel_widget.dart';
-import 'package:blitzgedanke/utils/R.dart';
+import 'package:blitzidea/screens/game/game_manager.dart';
+import 'package:blitzidea/screens/game/wheel_widget.dart';
+import 'package:blitzidea/utils/R.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

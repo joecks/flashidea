@@ -61,7 +61,7 @@ class DefaultSetCards {
   String get phrase19 => """What annoys you?""";
   String get phrase20 => """A consequence of catching cold.""";
   String get phrase21 => """A word used in agriculture.""";
-  String get phrase22 => """Ce qu'il faut pour bâtir?""";
+  String get phrase22 => """What does a builder need?""";
   String get phrase23 => """A profession.""";
   String get phrase24 => """A tree.""";
   String get phrase25 => """What does summer bring?""";
@@ -69,7 +69,7 @@ class DefaultSetCards {
   String get phrase27 => """Something rare.""";
   String get phrase28 => """A word ending in "-tion".""";
   String get phrase29 => """An article of jewellery.""";
-  String get phrase30 => """Un objet d'un vaisseau.""";
+  String get phrase30 => """Semething found on a boat.""";
   String get phrase31 => """How does he (or she) appear?""";
   String get phrase32 => """What does everyone have sometimes?""";
   String get phrase33 => """A hero.""";
@@ -112,7 +112,7 @@ Map<String, String> get cardsMap => {
       """defaultSet.phrase19""": """What annoys you?""",
       """defaultSet.phrase20""": """A consequence of catching cold.""",
       """defaultSet.phrase21""": """A word used in agriculture.""",
-      """defaultSet.phrase22""": """Ce qu'il faut pour bâtir?""",
+      """defaultSet.phrase22""": """What does a builder need?""",
       """defaultSet.phrase23""": """A profession.""",
       """defaultSet.phrase24""": """A tree.""",
       """defaultSet.phrase25""": """What does summer bring?""",
@@ -120,7 +120,7 @@ Map<String, String> get cardsMap => {
       """defaultSet.phrase27""": """Something rare.""",
       """defaultSet.phrase28""": """A word ending in "-tion".""",
       """defaultSet.phrase29""": """An article of jewellery.""",
-      """defaultSet.phrase30""": """Un objet d'un vaisseau.""",
+      """defaultSet.phrase30""": """Semething found on a boat.""",
       """defaultSet.phrase31""": """How does he (or she) appear?""",
       """defaultSet.phrase32""": """What does everyone have sometimes?""",
       """defaultSet.phrase33""": """A hero.""",

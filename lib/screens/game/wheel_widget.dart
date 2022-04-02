@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:blitzgedanke/utils/R.dart';
+import 'package:blitzidea/utils/R.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 

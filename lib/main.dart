@@ -1,5 +1,5 @@
-import 'package:blitzgedanke/screens/game/game_manager.dart';
-import 'package:blitzgedanke/screens/game/game_screen.dart';
+import 'package:blitzidea/screens/game/game_manager.dart';
+import 'package:blitzidea/screens/game/game_screen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -27,6 +27,7 @@ class MainScreen extends StatelessWidget {
         resumeCallBack: () async => await _disableStatusBar()));
 
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.yellow,
         brightness: Brightness.dark,

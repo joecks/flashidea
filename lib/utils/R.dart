@@ -1,7 +1,7 @@
-import 'package:blitzgedanke/utils/cards/cards.i18n.dart';
-import 'package:blitzgedanke/utils/cards/cards_de.i18n.dart';
-import 'package:blitzgedanke/utils/cards/cards_fr.i18n.dart';
-import 'package:blitzgedanke/utils/translations/ui.i18n.dart';
+import 'package:blitzidea/utils/cards/cards.i18n.dart';
+import 'package:blitzidea/utils/cards/cards_de.i18n.dart';
+import 'package:blitzidea/utils/cards/cards_fr.i18n.dart';
+import 'package:blitzidea/utils/translations/ui.i18n.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 
