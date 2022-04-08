@@ -1,0 +1,329 @@
+# This file contains the fastlane.tools configuration
+# You can find the documentation at https://docs.fastlane.tools
+#
+# For a list of all available actions, check out
+#
+#     https://docs.fastlane.tools/actions
+#
+# For a list of all available plugins, check out
+#
+#     https://docs.fastlane.tools/plugins/available-plugins
+#
+
+import("../ios/fastlane/Fastfile")
+import("./lib/properties.rb")
+import("./lib/download_utils.rb")
+require "./lib/git.rb"
+
+### All the configs are in this file, eventually all project specific parts will move there
+require "./lib/config.rb"
+
+Keys = Config::Keys
+Options = Config::Options
+_Options = Config::InternalOptions
+Platforms = Config::Platforms
+Flavors = Config::Flavors
+AndroidOutputs = Config::AndroidOutputs
+BuildTypes = Config::BuildTypes
+
+# Common checks before running a lane
+before_all do |lane, options|
+  allowedOptions = Options.constants.map { |c| Options.const_get(c) }
+  options.each do |k, v|
+    UI.user_error!("Unknown Option ''#{k}'\nAllowed options:\n#{Options::help()}") unless allowedOptions.include?(k)
+  end
+
+  setIfNotSet = lambda { |option, alt|
+    options[option] = options.key?(option) ? options[option] : alt
+  }
+
+  # set default values
+  setIfNotSet.call(Options::CLEAN, is_ci)
+  setIfNotSet.call(Options::PLATFORM, Platforms::ANDROID)
+  setIfNotSet.call(Options::ANDROID_OUTPUT, AndroidOutputs::APP_BUNDLE)
+  setIfNotSet.call(Options::FLAVOR, Flavors::PRODUCTION)
+  setIfNotSet.call(Options::BUILD_TYPE, lane == :publish ? BuildTypes::RELEASE : BuildTypes::DEBUG)
+  setIfNotSet.call(Options::UPLOAD_TO_APPCENTER, is_ci)
+  setIfNotSet.call(Options::TEST, lane == :check)
+
+  version_name = gitVersionName()
+  flavor = options[Options::FLAVOR]
+  platform = options[Options::PLATFORM]
+  build_number = gitVersionNumber()
+  setIfNotSet.call(Options::BUILD_NUMBER, build_number)
+  setIfNotSet.call(Options::VERSION_NAME, version_name)
+  setIfNotSet.call(Options::STORE, flavor == Flavors::PRODUCTION)
+  options[_Options::ENV] = Config::ENV_DEFAULTS.to_h
+  UI.success "Params:\n#{JSON.pretty_generate(options)}"
+  options[_Options::ENV].merge!(ENV.to_h)
+  if is_ci
+    UI.success "Env:\n#{JSON.pretty_generate(options[_Options::ENV])}"
+  end
+end
+
+# Private lanes, that we only call internally, they are nice because they have an own description
+desc "Flutter build"
+private_lane :flutter_build do |options|
+  if options[Options::CLEAN]
+    clean(options)
+  end
+  build_runner(options)
+
+  platform = options[Options::PLATFORM]
+  target = platform == Platforms::ANDROID ? options[Options::ANDROID_OUTPUT] : platform
+  type = options[Options::BUILD_TYPE] == BuildTypes::RELEASE ? "--release" : "--debug"
+  codesign = platform == Platforms::IOS ? "--no-codesign" : ""
+  flavor = options[Options::FLAVOR]
+  appName = Config::FLAVOR_MATRIX[flavor][platform][Keys::NAME]
+  appId = Config::FLAVOR_MATRIX[flavor][platform][Keys::ID]
+
+  defines = {
+    "GIT_TAG" => options[Options::VERSION_NAME],
+    "USER_APP_ID" => appId,
+    "USER_APP_NAME" => appName,
+    "USER_FLAVOR" => flavor,
+  }
+
+  if platform == Platforms::IOS
+    defines["USER_PROVISIONING_PROFILE"] = Config::IOS_BUILD_CONFIG[flavor][Keys::PROVISIONING_PROFILE_NAME]
+    defines["USER_CERTIFICATE"] = Config::IOS_BUILD_CONFIG[flavor][Keys::CERTIFICATE_NAME]
+  end
+  dartDefines = defines.map { |k, v| " --dart-define=#{k}=\"#{v}\"" }.reduce("", :+)
+
+  flutter("build #{target} #{type} #{codesign} --build-number=#{options[Options::BUILD_NUMBER]} --build-name=#{options[Options::VERSION_NAME]} #{dartDefines}")
+end
+
+desc "Prepare internal key.properties"
+private_lane :android_prepare_key_properties do |options|
+  UI.user_error!("No PROVISIONING_PASSWORD provided!") unless ENV.key?("PROVISIONING_PASSWORD")
+  provisionigPassword = ENV["PROVISIONING_PASSWORD"]
+  keyAlias = Config::ANDROID_BUILD_CONFIG[options[Options::FLAVOR]][Keys::KEY_ALIAS]
+  setProperties("../android/key.properties", {
+    "storePassword" => provisionigPassword,
+    "keyPassword" => provisionigPassword,
+    "keyAlias" => keyAlias,
+    "storeFile" => "release.jks",
+  })
+end
+
+
+####
+#### Public lanes, can also be used via tab completion: `fastlane enable_auto_complete`
+####
+
+desc "Flutter build runner"
+lane :build_runner do |options|
+  check_config_files(options)
+  maybe_pub_get(options)
+
+  mode = options[Options::WATCH] ? "watch" : "build"
+  flutter("pub run build_runner #{mode} --delete-conflicting-outputs")
+end
+
+desc "Checks alle the config (env, properties, etc) if they are correctly set"
+lane :check_config_files do |options|
+#   askAndSetProperties("../.env.dev",
+#                       {
+#     "REVENUE_CAT_SDK_KEY_IOS" => "REVENUE_CAT_SDK_KEY_IOS",
+#   }, Config::ENV_DEFAULTS)
+#
+#   askAndSetProperties("../.env.prod",
+#                       {
+#     "REVENUE_CAT_SDK_KEY_IOS" => "REVENUE_CAT_SDK_KEY_IOS",
+#   }, Config::ENV_DEFAULTS)
+#
+#   if options[Options::FLAVOR] != Flavors::INTERNAL && options[Options::BUILD_TYPE] == BuildTypes::RELEASE
+#     askAndSetProperties("../android/custom.properties", { "INSTABUG_TOKEN_PRODUCTION" => "INSTABUG_TOKEN" }, Config::ENV_DEFAULTS)
+#   else
+#     askAndSetProperties("../android/custom.properties", { "INSTABUG_TOKEN_DEBUG" => "INSTABUG_TOKEN" }, Config::ENV_DEFAULTS)
+#   end
+end
+
+desc "Flutter pub get"
+lane :pub_get do |options|
+  flutter("pub get")
+end
+
+desc "Watch changes for rerunning the build_runner"
+lane :watch do |options|
+  options[Options::WATCH] = true
+  build_runner(options)
+end
+
+desc "Flutter clean"
+lane :clean do |options|
+  flutter("clean")
+#   clean_folder("assets/ai/")
+end
+
+desc "Sanity checks"
+lane :check do |options|
+  maybe_pub_get(options)
+  build_runner(options)
+
+  flutter("analyze lib test")
+  if is_ci
+    flutter("format ./ --set-exit-if-changed")
+  else
+    flutter("format ./")
+  end
+  flutter("pub global activate dart_dot_reporter")
+  flutter("test --reporter=json > machine.log || echo 'Tests failed'")
+  begin
+    flutter("pub global run dart_dot_reporter machine.log --show-message")
+  rescue
+    UI.user_error!("Checks failed!")
+  end
+end
+
+desc "Build and publish to MS AppCenter \n" \
+     "Available options:\n" \
+     "#{Options::help()}"
+lane :publish do |options|
+  platform = options[Options::PLATFORM]
+  flavor = options[Options::FLAVOR]
+  config = Config::FLAVOR_MATRIX[flavor][platform]
+  appcenter_target = config[Keys::APPCENTER_TARGET]
+  appcenter_token = config[Keys::APPCENTER_TOKEN]
+
+  if platform == Platforms::ANDROID
+    android_prepare_key_properties(options)
+  end
+  output = flutter_build(options)
+  appcenter_buildfile = output[/.*Built (.*\.(?:aab|ipa|apk))/, 1]
+
+  if platform == Platforms::IOS
+    Dir.chdir("../ios/fastlane") do
+      ios_create_ipa(options)
+      appcenter_buildfile = options[:ios_create_ipa]
+    end
+  end
+  if options[Options::UPLOAD_TO_APPCENTER]
+    UI.success "Will upload file #{appcenter_buildfile}"
+    UI.user_error!("No $#{appcenter_token} provided!") unless ENV.key?(appcenter_token)
+    version = options[Options::VERSION_NAME]
+
+    if options[Options::STORE]
+      uploadToStore(
+        ENV[appcenter_token],
+        appcenter_target,
+        appcenter_buildfile,
+        version,
+        # maxChangeLogSize
+        platform == Platforms::ANDROID ? 500 : -1
+      )
+    else
+      uploadToAppCenter(
+        ENV[appcenter_token],
+        appcenter_target,
+        appcenter_buildfile,
+        version
+      )
+    end
+  end
+end
+
+desc "Update the assets folder based on the Assets Manifest from xayn_discovery_engine"
+lane :update_assets do |options|
+  isUnderTest = options[Options::TEST]
+  manifestPath = File.join(pathFromDependency("xayn_discovery_engine"), "assets", "asset_manifest.json")
+  manifestPath["file://"] = ""
+  raise "No manifest file at #{manifestPath}" unless File.file?(manifestPath)
+  UI.user_error!("No AI_ASSETS_URL provided!") unless options[_Options::ENV].key?("AI_ASSETS_URL")
+  UI.success("Downloading/ Checking files from Manifest: #{manifestPath}")
+  downloadAssetsFromManifest(manifestPath, options[_Options::ENV]["AI_ASSETS_URL"], File.join("..", "assets", "ai"), isUnderTest)
+end
+
+desc "Takes the current tag and increments the version on the minor position and creates a new Tag.\n" \
+     "So that 3.0.2 will become 3.1.0\n" \
+     "It will fail if the current commit is already tagged."
+lane :increment_nightly_tag do |options|
+  currentCommit = shell("git rev-parse HEAD")
+  currentCommit["\n"] = ""
+  currentCommitTag = ""
+  begin
+    currentCommitTag = shell("git describe --contains #{currentCommit} 2>/dev/null")
+    currentCommitTag["\n"] = ""
+  rescue
+  end
+
+  UI.user_error!("This commit (#{currentCommit}) already contains a tag (#{currentCommitTag})") unless currentCommitTag == ""
+
+  lastTag = shell("git describe --abbrev=0 --tags")
+  numbers = lastTag.split(".")
+  minor = numbers[1].to_i + 1
+  newTag = "#{numbers[0]}.#{minor}.0"
+  shell("git tag #{newTag}")
+end
+
+# Private helper methods
+def flutter(args)
+  Dir.chdir("..") do
+    sh "flutter #{args}"
+  end
+end
+
+def clean_folder(folder)
+  if Dir.exist?("../#{folder}") && !Dir.empty?("../#{folder}")
+    shell("rm -r #{folder}*")
+  end
+end
+
+def shell(args)
+  Dir.chdir("..") do
+    sh(args)
+  end
+end
+
+def uploadToAppCenter(token, appName, path, version, maxChangeLogSize = -1)
+  changelog = gitShortChangeLog(version, maxChangeLogSize, false)
+
+   appcenter_upload(
+     api_token: token,
+     owner_name: Config::APPCENTER_OWNER_NAME,
+     owner_type: Config::APPCENTER_OWNER_TYPE,
+     app_name: appName,
+     file: path,
+     release_notes: changelog,
+     destinations: Config::APPCENTER_DEFAULT_TARGET,
+     notify_testers: true,
+   )
+end
+
+def uploadToStore(token, appName, path, version, maxChangeLogSize = -1)
+  changelog = gitShortChangeLog(version, maxChangeLogSize, false)
+
+    appcenter_upload(
+     api_token: token,
+     owner_name: Config::APPCENTER_OWNER_NAME,
+     owner_type: Config::APPCENTER_OWNER_TYPE,
+     app_name: appName,
+     file: path,
+     release_notes: changelog,
+     destinations: Config::APPCENTER_DEFAULT_STORE,
+     destination_type: Config::APPCENTER_DESTINATION_TYPE_STORE,
+     notify_testers: true,
+    )
+
+end
+
+def pathFromDependency(dependency)
+  properties = loadProperties("../.packages", ":")
+  path = properties[dependency]
+  raise "Can not find #{dependency} in ../.packages " if (path == nil)
+  return path
+end
+
+def maybe_pub_get(options)
+  lastLock = getLastModifiedForFile("../pubspec.lock")
+  lastPubGet = getLastModifiedForFile("../pubspec.yaml")
+  lastPackages = getLastModifiedForFile("../.packages")
+
+  if lastPubGet == nil
+    UI.user_error! "No pubspec.yaml file found!"
+  end
+
+  if lastLock == nil || lastPackages == nil || lastLock < lastPubGet
+    pub_get(options)
+  end
+end
