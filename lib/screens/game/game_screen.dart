@@ -17,6 +17,12 @@ class _GameScreenState extends State<GameScreen> {
   final _wheelKey = GlobalKey();
 
   @override
+  void initState() {
+    print('GameScreen.initState');
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
         body: SafeArea(
