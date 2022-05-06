@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:blitzidea/screens/game/game_manager.dart';
 import 'package:blitzidea/screens/game/screens/common_widgets.dart';
 import 'package:blitzidea/screens/game/screens/flip_anmiation.dart';
@@ -47,23 +49,30 @@ class RunningGameScreen extends StatelessWidget {
       ),
     );
 
+    final size = MediaQuery.of(context).size;
+    final screenWidth = size.width;
+    final screenHeight = size.height;
+
     final roundOver = state.roundOver || state.card.isEmpty;
     return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Expanded(flex: 6, child: _buildCard(context, state)),
-        Expanded(
-            flex: 10,
-            child: buildWheel(
-              context: context,
-              canInteract: true,
-              state: roundOver ? WheelState.hidden : WheelState.visible,
-              wheelKey: wheelKey,
-              onSpinFinished: manager.onSpinFinished,
-              onSpinStart: manager.onSpinStarted,
-              hiddenLabel: roundOver ? 'Next Round' : null,
-              onHiddenLabelClick: manager.onNextRoundClicked,
-            )),
+        SizedBox(width: min(screenWidth, 600), height: max(100, screenHeight/4.5), child: _buildCard(context, state)),
+        ConstrainedBox(
+          constraints: const BoxConstraints.expand(height: 320),
+          child: buildWheel(
+            context: context,
+            canInteract: true,
+            state: roundOver ? WheelState.hidden : WheelState.visible,
+            wheelKey: wheelKey,
+            onSpinFinished: manager.onSpinFinished,
+            onSpinStart: manager.onSpinStarted,
+            hiddenLabel: roundOver ? R.strings.nextRound : null,
+            onHiddenLabelClick: manager.onNextRoundClicked,
+          ),
+        ),
         Opacity(
           opacity: opacity,
           child: Padding(
@@ -102,7 +111,9 @@ class RunningGameScreen extends StatelessWidget {
       disabled: state.roundOver || state.card.isEmpty,
     );
 
-    return FlipAnimation(child: child,);
+    return FlipAnimation(
+      child: child,
+    );
   }
 
   Widget _buildPlayerButton(

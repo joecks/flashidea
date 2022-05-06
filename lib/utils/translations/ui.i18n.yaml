@@ -7,6 +7,7 @@ descriptionSkipCard: Skip
 descriptionTurnTheWheel : Turn the wheel for next round.
 startNewGame: Start New Game
 startGame: Start Game
+nextRound: Next Round
 whoWasFirstInThisRound: Who was first?
 finalScore: Score
 cardLanguage: "Language:"

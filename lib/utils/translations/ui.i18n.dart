@@ -43,6 +43,7 @@ class Ui {
   String get descriptionTurnTheWheel => """Turn the wheel for next round.""";
   String get startNewGame => """Start New Game""";
   String get startGame => """Start Game""";
+  String get nextRound => """Next Round""";
   String get whoWasFirstInThisRound => """Who was first?""";
   String get finalScore => """Score""";
   String get cardLanguage => """Language:""";
@@ -62,6 +63,7 @@ Map<String, String> get uiMap => {
       """descriptionTurnTheWheel""": """Turn the wheel for next round.""",
       """startNewGame""": """Start New Game""",
       """startGame""": """Start Game""",
+      """nextRound""": """Next Round""",
       """whoWasFirstInThisRound""": """Who was first?""",
       """finalScore""": """Score""",
       """cardLanguage""": """Language:""",
