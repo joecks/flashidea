@@ -7,17 +7,22 @@
 
 1. Run build runner
 ```bash 
-flutter pub run build_runner build  --delete-conflicting-outputs
+fastlane build_runner
 ```
-2. Change pubspec.yaml
+2. Change tag
 
-```diff
-+ version: 1.0.2+3
-- version: 1.0.1+2
+```bash
+git tag 1.1.0
 ```
 
 ### Android
 
 ```bash
-flutter build appbundle --release
+fastlane publish platform:android android_output:appbundle build_type:release
+```
+
+### iOS
+
+```bash
+fastlane publish platform:ios build_type:release
 ```
