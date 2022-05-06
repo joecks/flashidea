@@ -17,13 +17,20 @@ class BeforeGameScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
     return Column(
       children: [
         Expanded(
             flex: 10,
-            child: buildWheel(state.canStart, wheelKey, manager.onSpinFinished,
-                manager.onSpinStarted)),
+            child: buildWheel(
+              context: context,
+              canInteract: state.canStart,
+              state: WheelState.hidden,
+              wheelKey: wheelKey,
+              onSpinFinished: manager.onSpinFinished,
+              onSpinStart: manager.onSpinStarted,
+              onHiddenLabelClick: manager.onClickStartGame,
+              hiddenLabel: R.strings.startGame
+            )),
         _buildSelectLanguage(
             context, state.cardLanguages, state.selectedLanguage),
         Expanded(

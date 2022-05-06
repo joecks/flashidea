@@ -153,7 +153,7 @@ class GameManager extends Cubit<GameState> {
     _computeState();
   }
 
-  void onSpinStarted() {
+  void onClickStartGame() {
     if (!_isRunning && _players.length > 1) {
       _leftCards = _selectCardSet(_selectedCardLanguage);
       _isRunning = true;
@@ -163,7 +163,25 @@ class GameManager extends Cubit<GameState> {
       selectCard();
     }
 
+    _computeState();
+  }
+
+  void onSpinStarted() {
+    if (_isRunning) {
+      selectCard();
+    }
+
     _finallySelectWinningPlayer();
+
+    _computeState();
+  }
+
+  void onNextRoundClicked() {
+    _finallySelectWinningPlayer();
+
+    if (_isRunning) {
+      selectCard();
+    }
 
     _computeState();
   }
@@ -274,4 +292,6 @@ class GameManager extends Cubit<GameState> {
       _currentCard = null;
     }
   }
+
+
 }

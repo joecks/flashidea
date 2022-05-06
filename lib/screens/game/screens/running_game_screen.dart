@@ -1,10 +1,8 @@
 import 'package:blitzidea/screens/game/game_manager.dart';
 import 'package:blitzidea/screens/game/screens/common_widgets.dart';
-import 'package:blitzidea/screens/game/wheel_widget.dart';
+import 'package:blitzidea/screens/game/screens/flip_anmiation.dart';
 import 'package:blitzidea/utils/R.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 class RunningGameScreen extends StatelessWidget {
   const RunningGameScreen(
@@ -49,6 +47,7 @@ class RunningGameScreen extends StatelessWidget {
       ),
     );
 
+    final roundOver = state.roundOver || state.card.isEmpty;
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -56,7 +55,15 @@ class RunningGameScreen extends StatelessWidget {
         Expanded(
             flex: 10,
             child: buildWheel(
-                true, wheelKey, manager.onSpinFinished, manager.onSpinStarted)),
+              context: context,
+              canInteract: true,
+              state: roundOver ? WheelState.hidden : WheelState.visible,
+              wheelKey: wheelKey,
+              onSpinFinished: manager.onSpinFinished,
+              onSpinStart: manager.onSpinStarted,
+              hiddenLabel: roundOver ? 'Next Round' : null,
+              onHiddenLabelClick: manager.onNextRoundClicked,
+            )),
         Opacity(
           opacity: opacity,
           child: Padding(
@@ -74,12 +81,13 @@ class RunningGameScreen extends StatelessWidget {
   }
 
   _buildCard(BuildContext context, RunningGameState state) {
-    return buildCardButton(
+    final child = buildCardButton(
       Text(
         state.card,
         textAlign: TextAlign.center,
         style: R.styles.gameCard(context),
       ),
+      key: ValueKey(state.card),
       onTap: manager.cardPressed,
       description: Text(
         state.roundOver
@@ -89,9 +97,12 @@ class RunningGameScreen extends StatelessWidget {
       ),
       minHeight: 100,
       minWidth: 200,
+      maxWidth: 600,
       background: R.colors.cardBackground,
       disabled: state.roundOver || state.card.isEmpty,
     );
+
+    return FlipAnimation(child: child,);
   }
 
   Widget _buildPlayerButton(

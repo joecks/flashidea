@@ -47,7 +47,7 @@ class EndGameScreen extends StatelessWidget {
           TextButton(
               onPressed: () => manager.restartGame(),
               child: Text(
-                R.strings.startGame.toUpperCase(),
+                R.strings.startNewGame.toUpperCase(),
                 style: R.styles.button(context),
               ))
         ],

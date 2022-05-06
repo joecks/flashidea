@@ -55,8 +55,9 @@ class _WheelWidgetState extends State<WheelWidget>
       onPanUpdate: _panHandler,
       onPanEnd: (_) {
         /// to alwyays flip to a correct state
-        _rotationChange =
-            _rotationChange == 0 ? _random.nextDouble() * 1000 : _rotationChange;
+        _rotationChange = _rotationChange == 0
+            ? (_random.nextDouble() + 1.0) * 1000
+            : _rotationChange;
         _pressed = false;
         _startAnimation();
       },
@@ -152,7 +153,7 @@ class _WheelWidgetState extends State<WheelWidget>
               begin: _rotation,
               end: finalRotation - (finalRotation % parts) + parts / 8)
           .animate(
-              CurvedAnimation(parent: controller, curve: Curves.easeOutQuad));
+              CurvedAnimation(parent: controller, curve: Curves.easeInOutCubicEmphasized));
 
       controller.addListener(() {
         setState(() {

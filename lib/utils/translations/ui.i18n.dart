@@ -41,7 +41,8 @@ class Ui {
   String get addPlayer => """Add player (min. 2)""";
   String get descriptionSkipCard => """Skip""";
   String get descriptionTurnTheWheel => """Turn the wheel for next round.""";
-  String get startGame => """Start New Game""";
+  String get startNewGame => """Start New Game""";
+  String get startGame => """Start Game""";
   String get whoWasFirstInThisRound => """Who was first?""";
   String get finalScore => """Score""";
   String get cardLanguage => """Language:""";
@@ -59,7 +60,8 @@ Map<String, String> get uiMap => {
       """addPlayer""": """Add player (min. 2)""",
       """descriptionSkipCard""": """Skip""",
       """descriptionTurnTheWheel""": """Turn the wheel for next round.""",
-      """startGame""": """Start New Game""",
+      """startNewGame""": """Start New Game""",
+      """startGame""": """Start Game""",
       """whoWasFirstInThisRound""": """Who was first?""",
       """finalScore""": """Score""",
       """cardLanguage""": """Language:""",

@@ -2,8 +2,6 @@ import 'package:blitzidea/screens/game/wheel_widget.dart';
 import 'package:blitzidea/utils/R.dart';
 import 'package:flutter/material.dart';
 
-Widget buildWheel(bool canStart, GlobalKey wheelKey,
-    Function(int postion) onSpinFinished, Function() onSpinStart) {
 // TODO try spinning wheel fork
 // flutter_spinning_wheel:
 //     git:
@@ -22,17 +20,93 @@ Widget buildWheel(bool canStart, GlobalKey wheelKey,
 //   canInteractWhileSpinning: true,
 // )
 
-  return IgnorePointer(
-    ignoring: !canStart,
-    child: Opacity(
-      opacity: canStart ? 1.0 : 0.3,
-      child: WheelWidget(
-        key: wheelKey,
-        onFinished: onSpinFinished,
-        onRotationStart: onSpinStart,
-      ),
-    ),
+enum WheelState { visible, hidden }
+
+Widget buildWheel({
+  required BuildContext context,
+  required WheelState state,
+  required bool canInteract,
+  required Key wheelKey,
+  required Function(int postion) onSpinFinished,
+  required Function() onSpinStart,
+  String? hiddenLabel,
+  VoidCallback? onHiddenLabelClick,
+}) {
+  return AnimatedWheel(
+    key: wheelKey,
+    state: state,
+    canInteract: canInteract,
+    onSpinFinished: onSpinFinished,
+    onSpinStart: onSpinStart,
+    hiddenLabel: hiddenLabel,
+    onHiddenLabelClick: onHiddenLabelClick,
   );
+}
+
+class AnimatedWheel extends StatefulWidget {
+  final bool canInteract;
+  final WheelState state;
+  final Function(int postion) onSpinFinished;
+  final Function() onSpinStart;
+  final String? hiddenLabel;
+  final VoidCallback? onHiddenLabelClick;
+
+  const AnimatedWheel({
+    Key? key,
+    required this.state,
+    required this.canInteract,
+    required this.onSpinFinished,
+    required this.onSpinStart,
+    this.hiddenLabel,
+    this.onHiddenLabelClick,
+  }) : super(key: key);
+
+  @override
+  State<AnimatedWheel> createState() => _AnimatedWheelState();
+}
+
+class _AnimatedWheelState extends State<AnimatedWheel> {
+  final GlobalKey _wheelKey = GlobalKey();
+
+  @override
+  Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    final hiddenLabel = widget.hiddenLabel;
+    const widgetSize = Size(400, 400);
+    final center = width / 2 - widgetSize.width / 2;
+
+    return IgnorePointer(
+        ignoring: !widget.canInteract,
+        child: Opacity(
+            opacity: widget.canInteract ? 1.0 : 0.3,
+            child: Stack(
+              fit: StackFit.expand,
+              alignment: Alignment.center,
+              children: [
+                if (hiddenLabel != null) _createLabel(hiddenLabel),
+                AnimatedPositioned(
+                  duration: const Duration(milliseconds: 1000),
+                  curve: Curves.easeInOutCubicEmphasized,
+                  right:
+                      widget.state == WheelState.visible ? center : width - 100,
+                  child: WheelWidget(
+                    key: _wheelKey,
+                    onFinished: widget.onSpinFinished,
+                    onRotationStart: widget.onSpinStart,
+                  ),
+                ),
+              ],
+            )));
+  }
+
+  Widget _createLabel(String label) {
+    return TextButton(
+        onPressed: widget.onHiddenLabelClick,
+        child: Text(
+          label.toUpperCase(),
+          style: R.styles.player(context),
+        ));
+  }
 }
 
 Widget buildCardButton(
@@ -41,13 +115,23 @@ Widget buildCardButton(
   Widget? description,
   double? minHeight,
   double? minWidth,
+  double? maxHeight,
+  double? maxWidth,
   Color? background,
   bool disabled = false,
+  Key? key,
 }) {
-  if (minWidth != null || minHeight != null) {
+  if (minWidth != null ||
+      minHeight != null ||
+      maxHeight != null ||
+      maxWidth != null) {
     child = ConstrainedBox(
-      constraints:
-          BoxConstraints(minWidth: minWidth ?? 0, minHeight: minHeight ?? 0),
+      constraints: BoxConstraints(
+        minWidth: minWidth ?? 0,
+        minHeight: minHeight ?? 0,
+        maxHeight: maxHeight ?? double.infinity,
+        maxWidth: maxWidth ?? double.infinity,
+      ),
       child: Center(child: child),
     );
   }
@@ -68,6 +152,7 @@ Widget buildCardButton(
         );
 
   return IgnorePointer(
+    key: key,
     ignoring: disabled || onTap == null,
     child: Opacity(
       opacity: disabled ? 0.5 : 1.0,
