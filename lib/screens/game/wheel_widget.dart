@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:blitzidea/utils/R.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 const positions = 26;
 
@@ -27,6 +28,8 @@ class _WheelWidgetState extends State<WheelWidget>
   AnimationController? _controller;
   var _rotation = 2 * pi;
   var _rotationChange = 0.0;
+  var _pressed = false;
+  final _random = Random();
 
   @override
   void dispose() {
@@ -36,8 +39,12 @@ class _WheelWidgetState extends State<WheelWidget>
 
   @override
   Widget build(BuildContext context) {
-    final wheel = Image.asset(
+    final wheel = SvgPicture.asset(
       R.assets.wheel,
+    );
+
+    final wheelPressed = SvgPicture.asset(
+      R.assets.wheelPressed,
     );
 
     final letters = Image.asset(
@@ -48,17 +55,23 @@ class _WheelWidgetState extends State<WheelWidget>
       onPanUpdate: _panHandler,
       onPanEnd: (_) {
         /// to alwyays flip to a correct state
-        _rotationChange = _rotationChange == 0 ? 1 : _rotationChange;
+        _rotationChange =
+            _rotationChange == 0 ? _random.nextDouble() * 1000 : _rotationChange;
+        _pressed = false;
         _startAnimation();
       },
       onPanCancel: () {
         /// to alwyays flip to a correct state
         _rotationChange = _rotationChange == 0 ? 1 : _rotationChange;
+        _pressed = false;
         _startAnimation();
       },
       onPanDown: (_) {
         _controller?.stop();
-        _rotationChange = 0;
+        setState(() {
+          _rotationChange = 0;
+          _pressed = true;
+        });
       },
       child: SizedBox(
         width: 2.0 * radius,
@@ -67,7 +80,9 @@ class _WheelWidgetState extends State<WheelWidget>
           alignment: Alignment.center,
           children: [
             Transform.rotate(angle: _rotation, child: letters),
-            Padding(child: wheel, padding: const EdgeInsets.all(6)),
+            Padding(
+                child: _pressed ? wheelPressed : wheel,
+                padding: const EdgeInsets.all(6)),
           ],
         ),
       ),

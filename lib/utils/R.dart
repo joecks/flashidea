@@ -83,7 +83,8 @@ extension UiExt on Ui {
 }
 
 class Assets {
-  final String wheel = 'assets/images/wheel.png';
+  final String wheel = 'assets/images/wheel.svg';
+  final String wheelPressed = 'assets/images/wheel_pressed.svg';
   final String letters = 'assets/images/letters.png';
 }
 
