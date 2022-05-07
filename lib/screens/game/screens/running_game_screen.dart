@@ -19,6 +19,11 @@ class RunningGameScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Changing the focus node fixes
+    // Offset argument contained a NaN value. 'dart:ui/painting.dart': Failed assertion: line 43:
+    // from:  https://stackoverflow.com/a/66452861/495800
+    FocusScope.of(context).requestFocus(FocusNode());
+
     final endGameButton = TextButton(
         onPressed: () {
           manager.endGame();
@@ -50,8 +55,11 @@ class RunningGameScreen extends StatelessWidget {
     );
 
     final size = MediaQuery.of(context).size;
-    final screenWidth = size.width;
     final screenHeight = size.height;
+    double spaceLeftForWheel = /* minHeight of card*/ (screenHeight - 150) *
+        /* wheelFlex / (wheelFlex + userFlex)*/ (9.0 / 15);
+    // paddings
+    spaceLeftForWheel -= 48;
 
     final roundOver = state.roundOver || state.card.isEmpty;
     return Column(
@@ -59,9 +67,12 @@ class RunningGameScreen extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,
       children: [
-        SizedBox(width: min(screenWidth, 600), height: max(100, screenHeight/4.5), child: _buildCard(context, state)),
-        ConstrainedBox(
-          constraints: const BoxConstraints.expand(height: 320),
+        // SizedBox(width: min(screenWidth, 600), height: max(100, screenHeight/4.5), child: _buildCard(context, state)),
+        IntrinsicHeight(child: _buildCard(context, state)),
+        // ConstrainedBox(
+        //   constraints: const BoxConstraints.expand(height: 320),
+        Expanded(
+          flex: 9,
           child: buildWheel(
             context: context,
             canInteract: true,
@@ -71,6 +82,7 @@ class RunningGameScreen extends StatelessWidget {
             onSpinStart: manager.onSpinStarted,
             hiddenLabel: roundOver ? R.strings.nextRound : null,
             onHiddenLabelClick: manager.onNextRoundClicked,
+            wheelRadius: min(spaceLeftForWheel ~/ 2, 200),
           ),
         ),
         Opacity(
@@ -104,9 +116,10 @@ class RunningGameScreen extends StatelessWidget {
             : R.strings.descriptionSkipCard,
         style: R.styles.gameCardDescription(context),
       ),
-      minHeight: 100,
+      minHeight: 150,
       minWidth: 200,
       maxWidth: 600,
+      maxHeight: 200,
       background: R.colors.cardBackground,
       disabled: state.roundOver || state.card.isEmpty,
     );

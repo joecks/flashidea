@@ -31,6 +31,7 @@ Widget buildWheel({
   required Function() onSpinStart,
   String? hiddenLabel,
   VoidCallback? onHiddenLabelClick,
+  required int wheelRadius,
 }) {
   return AnimatedWheel(
     key: wheelKey,
@@ -40,6 +41,7 @@ Widget buildWheel({
     onSpinStart: onSpinStart,
     hiddenLabel: hiddenLabel,
     onHiddenLabelClick: onHiddenLabelClick,
+    wheelRadius: wheelRadius,
   );
 }
 
@@ -50,6 +52,7 @@ class AnimatedWheel extends StatefulWidget {
   final Function() onSpinStart;
   final String? hiddenLabel;
   final VoidCallback? onHiddenLabelClick;
+  final int wheelRadius;
 
   const AnimatedWheel({
     Key? key,
@@ -59,6 +62,7 @@ class AnimatedWheel extends StatefulWidget {
     required this.onSpinStart,
     this.hiddenLabel,
     this.onHiddenLabelClick,
+    required this.wheelRadius,
   }) : super(key: key);
 
   @override
@@ -72,8 +76,8 @@ class _AnimatedWheelState extends State<AnimatedWheel> {
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     final hiddenLabel = widget.hiddenLabel;
-    const widgetSize = Size(400, 400);
-    final center = width / 2 - widgetSize.width / 2;
+
+    final center = width / 2 - widget.wheelRadius;
 
     return IgnorePointer(
         ignoring: !widget.canInteract,
@@ -93,6 +97,7 @@ class _AnimatedWheelState extends State<AnimatedWheel> {
                     key: _wheelKey,
                     onFinished: widget.onSpinFinished,
                     onRotationStart: widget.onSpinStart,
+                    radius: widget.wheelRadius,
                   ),
                 ),
               ],
@@ -121,37 +126,22 @@ Widget buildCardButton(
   bool disabled = false,
   Key? key,
 }) {
-  if (minWidth != null ||
-      minHeight != null ||
-      maxHeight != null ||
-      maxWidth != null) {
-    child = ConstrainedBox(
-      constraints: BoxConstraints(
-        minWidth: minWidth ?? 0,
-        minHeight: minHeight ?? 0,
-        maxHeight: maxHeight ?? double.infinity,
-        maxWidth: maxWidth ?? double.infinity,
-      ),
-      child: Center(child: child),
-    );
-  }
-
   var content = description == null
       ? child
       : Column(
-          mainAxisSize: MainAxisSize.max,
+          mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.end,
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Expanded(
-              child: child,
+              child: Center(child: child),
               flex: 10,
             ),
             description
           ],
         );
 
-  return IgnorePointer(
+  final finalContent = IgnorePointer(
     key: key,
     ignoring: disabled || onTap == null,
     child: Opacity(
@@ -173,6 +163,24 @@ Widget buildCardButton(
       ),
     ),
   );
+
+  if (minWidth != null ||
+      minHeight != null ||
+      maxHeight != null ||
+      maxWidth != null) {
+    return ConstrainedBox(
+      key: key,
+      constraints: BoxConstraints(
+        minWidth: minWidth ?? 0,
+        minHeight: minHeight ?? 0,
+        maxHeight: maxHeight ?? double.infinity,
+        maxWidth: maxWidth ?? double.infinity,
+      ),
+      child: finalContent,
+    );
+  } else {
+    return finalContent;
+  }
 }
 
 Future<String?> showNewPlayerDialog(BuildContext context) async {

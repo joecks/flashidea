@@ -10,11 +10,13 @@ const positions = 26;
 class WheelWidget extends StatefulWidget {
   final VoidCallback onRotationStart;
   final Function(int position) onFinished;
+  final int radius;
 
   const WheelWidget({
     Key? key,
     required this.onRotationStart,
     required this.onFinished,
+    required this.radius,
   }) : super(key: key);
 
   @override
@@ -75,8 +77,8 @@ class _WheelWidgetState extends State<WheelWidget>
         });
       },
       child: SizedBox(
-        width: 2.0 * radius,
-        height: 2.0 * radius,
+        width: 2.0 * widget.radius,
+        height: 2.0 * widget.radius,
         child: Stack(
           alignment: Alignment.center,
           children: [
@@ -90,15 +92,13 @@ class _WheelWidgetState extends State<WheelWidget>
     );
   }
 
-  int radius = 200;
-
   void _panHandler(DragUpdateDetails d) {
     _controller?.stop();
     _rotationChange = 0;
 
     /// Pan location on the wheel
-    bool onTop = d.localPosition.dy <= radius;
-    bool onLeftSide = d.localPosition.dx <= radius;
+    bool onTop = d.localPosition.dy <= widget.radius;
+    bool onLeftSide = d.localPosition.dx <= widget.radius;
     bool onRightSide = !onLeftSide;
     bool onBottom = !onTop;
 
@@ -131,7 +131,7 @@ class _WheelWidgetState extends State<WheelWidget>
       setState(() {
         widget.onRotationStart();
         _rotationChange = rotationalChange;
-        _rotation = _rotation + (rotationalChange / radius);
+        _rotation = _rotation + (rotationalChange / widget.radius);
       });
     }
   }
@@ -145,15 +145,15 @@ class _WheelWidgetState extends State<WheelWidget>
       // _controller?.stop();
       _controller?.dispose();
       _controller = _controller;
-      var offset = _rotationChange * 2 / radius;
+      var offset = _rotationChange * 2 / widget.radius;
       offset = min(offset, (10 * pi) + (offset % _circle));
       const parts = _circle / positions;
       final finalRotation = _rotation + offset;
       var animation = Tween(
               begin: _rotation,
               end: finalRotation - (finalRotation % parts) + parts / 8)
-          .animate(
-              CurvedAnimation(parent: controller, curve: Curves.easeInOutCubicEmphasized));
+          .animate(CurvedAnimation(
+              parent: controller, curve: Curves.easeInOutCubicEmphasized));
 
       controller.addListener(() {
         setState(() {

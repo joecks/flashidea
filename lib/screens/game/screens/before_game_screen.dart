@@ -29,7 +29,8 @@ class BeforeGameScreen extends StatelessWidget {
               onSpinFinished: manager.onSpinFinished,
               onSpinStart: manager.onSpinStarted,
               onHiddenLabelClick: manager.onClickStartGame,
-              hiddenLabel: R.strings.startGame
+              hiddenLabel: R.strings.startGame,
+              wheelRadius: 200
             )),
         _buildSelectLanguage(
             context, state.cardLanguages, state.selectedLanguage),
