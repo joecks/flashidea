@@ -35,3 +35,4 @@ Runner/GeneratedPluginRegistrant.*
 
 profiles/
 Flutter/Dartdefines.xcconfig
+Podfile.lock

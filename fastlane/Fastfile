@@ -70,9 +70,9 @@ private_lane :flutter_build do |options|
   build_runner(options)
 
   platform = options[Options::PLATFORM]
-  target = platform == Platforms::ANDROID ? options[Options::ANDROID_OUTPUT] : platform
+  target = isAndroid(options) ? options[Options::ANDROID_OUTPUT] : platform
   type = options[Options::BUILD_TYPE] == BuildTypes::RELEASE ? "--release" : "--debug"
-  codesign = platform == Platforms::IOS ? "--no-codesign" : ""
+  codesign = isIos(options) ? "--no-codesign" : ""
   flavor = options[Options::FLAVOR]
   appName = Config::FLAVOR_MATRIX[flavor][platform][Keys::NAME]
   appId = Config::FLAVOR_MATRIX[flavor][platform][Keys::ID]
@@ -84,7 +84,7 @@ private_lane :flutter_build do |options|
     "USER_FLAVOR" => flavor,
   }
 
-  if platform == Platforms::IOS
+  if isIos(options)
     defines["USER_PROVISIONING_PROFILE"] = Config::IOS_BUILD_CONFIG[flavor][Keys::PROVISIONING_PROFILE_NAME]
     defines["USER_CERTIFICATE"] = Config::IOS_BUILD_CONFIG[flavor][Keys::CERTIFICATE_NAME]
   end
@@ -115,6 +115,11 @@ desc "Flutter build runner"
 lane :build_runner do |options|
   check_config_files(options)
   maybe_pub_get(options)
+  if isIos(options)
+    Dir.chdir("../ios/fastlane") do
+       cocoapods()
+    end
+  end
 
   mode = options[Options::WATCH] ? "watch" : "build"
   flutter("pub run build_runner #{mode} --delete-conflicting-outputs")
@@ -186,13 +191,13 @@ lane :publish do |options|
   appcenter_target = config[Keys::APPCENTER_TARGET]
   appcenter_token = config[Keys::APPCENTER_TOKEN]
 
-  if platform == Platforms::ANDROID
+  if isAndroid(options)
     android_prepare_key_properties(options)
   end
   output = flutter_build(options)
   appcenter_buildfile = output[/.*Built (.*\.(?:aab|ipa|apk))/, 1]
 
-  if platform == Platforms::IOS
+  if isIos(options)
     Dir.chdir("../ios/fastlane") do
       ios_create_ipa(options)
       appcenter_buildfile = options[:ios_create_ipa]
@@ -210,7 +215,7 @@ lane :publish do |options|
         appcenter_buildfile,
         version,
         # maxChangeLogSize
-        platform == Platforms::ANDROID ? 500 : -1
+        isAndroid(options) ? 500 : -1
       )
     else
       uploadToAppCenter(
@@ -315,4 +320,12 @@ def maybe_pub_get(options)
   if lastLock == nil || lastPackages == nil || lastLock < lastPubGet
     pub_get(options)
   end
+end
+
+def isIos(options)
+    return options[Options::PLATFORM] == Platforms::IOS
+end
+
+def isAndroid(options)
+    return options[Options::PLATFORM] == Platforms::ANDROID
 end
