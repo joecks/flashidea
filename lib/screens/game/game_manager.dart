@@ -1,7 +1,7 @@
 import 'dart:collection';
 import 'dart:math';
 
-import 'package:blitzidea/utils/R.dart';
+import 'package:flashidea/utils/r.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -292,6 +292,4 @@ class GameManager extends Cubit<GameState> {
       _currentCard = null;
     }
   }
-
-
 }

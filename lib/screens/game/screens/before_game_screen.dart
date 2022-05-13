@@ -1,6 +1,6 @@
-import 'package:blitzidea/screens/game/game_manager.dart';
-import 'package:blitzidea/screens/game/screens/common_widgets.dart';
-import 'package:blitzidea/utils/R.dart';
+import 'package:flashidea/screens/game/game_manager.dart';
+import 'package:flashidea/screens/game/screens/common_widgets.dart';
+import 'package:flashidea/utils/r.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -22,16 +22,15 @@ class BeforeGameScreen extends StatelessWidget {
         Expanded(
             flex: 10,
             child: buildWheel(
-              context: context,
-              canInteract: state.canStart,
-              state: WheelState.hidden,
-              wheelKey: wheelKey,
-              onSpinFinished: manager.onSpinFinished,
-              onSpinStart: manager.onSpinStarted,
-              onHiddenLabelClick: manager.onClickStartGame,
-              hiddenLabel: R.strings.startGame,
-              wheelRadius: 200
-            )),
+                context: context,
+                canInteract: state.canStart,
+                state: WheelState.hidden,
+                wheelKey: wheelKey,
+                onSpinFinished: manager.onSpinFinished,
+                onSpinStart: manager.onSpinStarted,
+                onHiddenLabelClick: manager.onClickStartGame,
+                hiddenLabel: R.strings.startGame,
+                wheelRadius: 200)),
         _buildSelectLanguage(
             context, state.cardLanguages, state.selectedLanguage),
         Expanded(

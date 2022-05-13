@@ -1,10 +1,7 @@
-import 'package:blitzidea/screens/game/game_manager.dart';
-import 'package:blitzidea/screens/game/screens/common_widgets.dart';
-import 'package:blitzidea/screens/game/wheel_widget.dart';
-import 'package:blitzidea/utils/R.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flashidea/screens/game/game_manager.dart';
+import 'package:flashidea/screens/game/screens/common_widgets.dart';
+import 'package:flashidea/utils/r.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 class EndGameScreen extends StatelessWidget {
   const EndGameScreen({

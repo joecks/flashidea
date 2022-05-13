@@ -1,5 +1,5 @@
-import 'package:blitzidea/screens/game/game_manager.dart';
-import 'package:blitzidea/screens/game/screens/game_screen.dart';
+import 'package:flashidea/screens/game/game_manager.dart';
+import 'package:flashidea/screens/game/screens/game_screen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -23,7 +23,7 @@ class MainScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    WidgetsBinding.instance!.addObserver(LifecycleEventHandler(
+    WidgetsBinding.instance.addObserver(LifecycleEventHandler(
         resumeCallBack: () async => await _disableStatusBar()));
 
     return MaterialApp(

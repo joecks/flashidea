@@ -1,9 +1,9 @@
 import 'dart:math';
 
-import 'package:blitzidea/screens/game/game_manager.dart';
-import 'package:blitzidea/screens/game/screens/common_widgets.dart';
-import 'package:blitzidea/screens/game/screens/flip_anmiation.dart';
-import 'package:blitzidea/utils/R.dart';
+import 'package:flashidea/screens/game/game_manager.dart';
+import 'package:flashidea/screens/game/screens/common_widgets.dart';
+import 'package:flashidea/screens/game/screens/flip_anmiation.dart';
+import 'package:flashidea/utils/r.dart';
 import 'package:flutter/material.dart';
 
 class RunningGameScreen extends StatelessWidget {

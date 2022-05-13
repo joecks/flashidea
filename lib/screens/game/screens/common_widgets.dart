@@ -1,5 +1,5 @@
-import 'package:blitzidea/screens/game/wheel_widget.dart';
-import 'package:blitzidea/utils/R.dart';
+import 'package:flashidea/screens/game/wheel_widget.dart';
+import 'package:flashidea/utils/r.dart';
 import 'package:flutter/material.dart';
 
 // TODO try spinning wheel fork

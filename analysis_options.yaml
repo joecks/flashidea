@@ -27,3 +27,9 @@ linter:
 
 # Additional information about this file can be found at
 # https://dart.dev/guides/language/analysis-options
+
+
+analyzer:
+  exclude: [ '**.g.dart', '**.mocks.dart', '**.freezed.dart', '**.config.dart', '**all_imports_test.dart', '**.i18n.dart']
+  errors:
+    invalid_use_of_visible_for_overriding_member: error
