@@ -1,0 +1,37 @@
+name: Code Quality
+
+env:
+  FLUTTER_VERSION: '3.0.0'
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - '*'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref }}
+  cancel-in-progress: true
+
+jobs:
+  Basic-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: '0'
+
+      - name: Install Flutter
+        uses: britannio/action-install-flutter@v1
+        with:
+          version: $FLUTTER_VERSION
+
+      - name: Run checks
+        timeout-minutes: 20
+        env:
+          FASTLANE_SKIP_UPDATE_CHECK: '1'
+        run: |
+          sudo chmod -R a+w /var/lib/gems/
+          fastlane check
