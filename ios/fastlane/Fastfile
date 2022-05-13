@@ -27,7 +27,6 @@ private_lane :ios_create_ipa do |options|
   provisioning_profiles = flavorConfig[Keys::PROVISIONING_PROFILES]
 
   UI.user_error!("No PROVISIONING_PASSWORD provided!") unless ENV.key?("PROVISIONING_PASSWORD")
-
   begin
     delete_keychain(name: "fastlane_tmp_keychain-db")
   rescue Exception
