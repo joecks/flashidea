@@ -93,14 +93,14 @@ module Config
       Platforms::IOS => {
         Keys::ID => "de.halfreal.blitzidea",
         Keys::NAME => "Flash Idea",
-        Keys::APPCENTER_TARGET => "",
-        Keys::APPCENTER_TOKEN => "APPCENTER_IOS_TOKEN",
+        Keys::APPCENTER_TARGET => "Flashidea-iOS-Beta",
+        Keys::APPCENTER_TOKEN => "APPCENTER_IOS_BETA_TOKEN",
       },
       Platforms::ANDROID => {
         Keys::ID => "de.halfreal.blitzidea",
         Keys::NAME => "Flash Idea",
-        Keys::APPCENTER_TARGET => "",
-        Keys::APPCENTER_TOKEN => "APPCENTER_ANDROID_TOKEN",
+        Keys::APPCENTER_TARGET => "Flashidea-Android-Beta",
+        Keys::APPCENTER_TOKEN => "APPCENTER_ANDROID_BETA_TOKEN",
       },
     },
   }
@@ -124,7 +124,7 @@ module Config
   }
 
   # Appcenter defaults
-  APPCENTER_OWNER_NAME = ""
+  APPCENTER_OWNER_NAME = "simon.joecks"
   APPCENTER_OWNER_TYPE = "organization"
   APPCENTER_DESTINATION_TYPE_STORE = "store"
   APPCENTER_DEFAULT_TARGET = "Collaborators"
